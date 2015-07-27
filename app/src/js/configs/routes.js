@@ -13,7 +13,8 @@ app.config(['$routeProvider', function($routeProvider) {
     templateUrl: 'templates/settings.html',
   })
   .whenAuthenticated('/settings/categories', {
-    templateUrl: 'templates/categories/index.html'
+    templateUrl: 'templates/categories/index.html',
+    controller: 'CategoriesCtrl',
   })
   .whenAuthenticated('/settings/categories/:id', {
     templateUrl: 'templates/categories/category.html'

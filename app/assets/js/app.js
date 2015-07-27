@@ -11,7 +11,8 @@ var app = angular.module('myApp', [
     'myApp.home',
     'myApp.account',
     'myApp.chat',
-    'myApp.login'
+    'myApp.login',
+    'myApp.categories'
   ])
 
   .run(['$rootScope', 'Auth', function($rootScope, Auth) {
@@ -98,7 +99,8 @@ app.config(['$routeProvider', function($routeProvider) {
     templateUrl: 'templates/settings.html',
   })
   .whenAuthenticated('/settings/categories', {
-    templateUrl: 'templates/categories/index.html'
+    templateUrl: 'templates/categories/index.html',
+    controller: 'CategoriesCtrl',
   })
   .whenAuthenticated('/settings/categories/:id', {
     templateUrl: 'templates/categories/category.html'
@@ -287,7 +289,76 @@ app.config(['$routeProvider', function($routeProvider) {
 
 /* -------- app/src/js/controllers/categories/index.js -------- */ 
 
+(function (angular) {
+  "use strict";
 
+  var app = angular.module('myApp.categories', ['ngRoute', 'firebase.utils', 'firebase', 'ngMaterial', 'ngMessages']);
+
+  app.controller('CategoriesCtrl', [
+    '$scope',
+    'categoriesFactory',
+    '$mdDialog',
+    function($scope, categoriesFactory, $mdDialog) {
+
+      $scope.categories = categoriesFactory;
+
+      $scope.add = function () {
+        // call modal into existance
+        $mdDialog.show({
+          controller: 'CategoriesNewCtrl',
+          templateUrl: 'templates/dialogs/new-category.html',
+          parent: angular.element(document.body)
+        })
+      }
+
+    }]);
+
+})(angular);
+
+/* -------- app/src/js/controllers/categories/new.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  angular.module('myApp.categories')
+  .controller('CategoriesNewCtrl', [
+    '$scope',
+    'categoriesFactory',
+    '$mdDialog',
+    function($scope, categoriesFactory, $mdDialog) {
+
+      $scope.subtmitting = false;
+      $scope.invalid = false; 
+
+      $scope.cancel = function () {
+        $mdDialog.cancel();
+      }
+
+      $scope.submit = function (form) {
+        if (form.$valid) {
+          $scope.invalid = false;
+          $scope.submitting = true;
+
+          categoriesFactory.$add({
+            name: $scope.category.name
+          })
+          .then(function () {
+            // data submitted succesfully
+            $scope.submitting = false;
+            $mdDialog.hide();
+          });
+
+        } else {
+          // form not valid
+          $scope.invalid = true;
+        }
+
+      }
+
+
+    }]);
+
+})(angular);
 
 /* -------- app/src/js/controllers/chat.js -------- */ 
 
@@ -507,7 +578,7 @@ angular.module('myApp')
     };
   });
 
-/* -------- app/src/js/services/factories/auth.js -------- */ 
+/* -------- app/src/js/services/factories/firebase/auth.js -------- */ 
 
 angular.module('firebase.auth', ['firebase', 'firebase.utils'])
   .factory('Auth', ['$firebaseAuth', 'fbutil', function($firebaseAuth, fbutil) {
@@ -515,19 +586,28 @@ angular.module('firebase.auth', ['firebase', 'firebase.utils'])
   }]);
 
 
-/* -------- app/src/js/services/factories/factories.js -------- */ 
+/* -------- app/src/js/services/factories/firebase/categories.js -------- */ 
+
+angular
+.module('myApp')
+.factory('categoriesFactory', [
+  'fbutil',
+  '$firebaseArray',
+  function(fbutil, $firebaseArray) {
+
+    var ref = fbutil.ref('categories');
+    return $firebaseArray(ref);
+
+  }]);
+
+/* -------- app/src/js/services/factories/firebase/factories.js -------- */ 
 
 app.factory('messageList', ['fbutil', '$firebaseArray', function(fbutil, $firebaseArray) {
   var ref = fbutil.ref('messages').limitToLast(10);
   return $firebaseArray(ref);
 }]);
 
-app.factory('categoryList', ['fbutil', '$firebaseArray', function(fbutil, $firebaseArray) {
-  var ref = fbutil.ref('categories').limitToLast(10);
-  return $firebaseArray(ref);
-}]);
-
-/* -------- app/src/js/services/factories/firebase.utils.js -------- */ 
+/* -------- app/src/js/services/factories/firebase/firebase.utils.js -------- */ 
 
 
 // a simple wrapper on Firebase and AngularFire to simplify deps and keep things DRY

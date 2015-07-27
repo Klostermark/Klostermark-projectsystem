@@ -1,0 +1,37 @@
+<md-dialog>
+  <form name="createCategoryForm" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Skapa ny kategori</h2>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+
+    <p>
+      Här skapar du en kategori som du senare kan välja att lägga moment inuti.
+    </p>
+
+    <md-input-container>
+      <label>Kategorinamn</label>
+      <input name="name" ng-model="category.name" required>
+      <div ng-messages="createCategoryForm.name.$error" ng-show="createCategoryForm.name.$touched || invalid">
+        <div ng-message="required">Du måste ange att namn.</div>
+      </div>
+    </md-input-container>
+
+    </md-dialog-content>
+    <div class="md-actions" layout="row">
+      <span flex>
+        <span ng-show="invalid">
+          Formuläret var inte korrekt ifyllt.
+        </span>
+      </span>
+      <md-button ng-click="cancel()" class="md-primary">
+        Avbryt
+      </md-button>
+      <md-button ng-click="submit(createCategoryForm)" class="md-primary" ng-disabled="submitting">
+        Skapa
+      </md-button>
+    </div>
+  </form>
+</md-dialog>

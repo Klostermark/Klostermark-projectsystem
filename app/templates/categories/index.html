@@ -1,24 +1,22 @@
 <div class="container">
   <md-card>
-    <md-list>
-      <md-list-item ng-click="navigateTo()">
-        <p>Data Usage</p>
-        <md-icon>mode_edit</md-icon>
-      </md-list-item>
-      <md-divider></md-divider>
-      <md-list-item ng-click="navigateTo()">
-        <p>Data Usage</p>
-        <md-icon>mode_edit</md-icon>
-      </md-list-item>
-      <md-divider></md-divider>
-      <md-list-item ng-click="navigateTo()">
-        <p>Data Usage</p>
-        <md-icon>mode_edit</md-icon>
-      </md-list-item>
-    </md-list>
+    <md-content>
+
+      <md-list>
+
+        <md-list-item ng-repeat-start="category in categories">
+          <p>{{ category.name }}</p>
+          <md-icon>mode_edit</md-icon>
+        </md-list-item>
+
+        <md-divider ng-repeat-end ng-if=" ! $last"></md-divider>
+
+      </md-list>
+
+    </md-content>
   </md-card>
 </div>
 
 <md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Lägg till kategori">
-  <md-icon>add</md-icon>
+  <md-icon ng-click="add()">add</md-icon>
 </md-button>
