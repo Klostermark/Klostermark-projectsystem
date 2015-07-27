@@ -14,10 +14,24 @@
   <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
 </head>
 <body ng-cloak ng-app="myApp">
-  <md-content>
+
+  <md-sidenav md-component-id="left" class="md-sidenav-left">
+    <md-list-item ng-click="navigateTo()">
+      <md-icon>cached</md-icon>
+      <p>Kunder</p>
+    </md-list-item>
+    <md-divider></md-divider>
+    <md-list-item ng-click="navigateTo()">
+      <md-icon>settings</md-icon>
+      <p>Systeminställningar</p>
+    </md-list-item>
+    <md-divider></md-divider>
+  </md-sidenav>
+
+  <md-content ng-controller="NavController">
     <md-toolbar class="md-default-theme">
       <div class="md-toolbar-tools">
-        <md-button class="md-icon-button" aria-label="Settings">
+        <md-button class="md-icon-button" aria-label="Meny" ng-click="openLeftMenu()">
           <md-icon>menu</md-icon>
         </md-button>
         <h2>
@@ -35,8 +49,22 @@
               </md-button>
             </md-menu-item>
             <md-menu-item>
-              <md-button disabled="disabled">
-                <p>Academy</p>
+                <md-button disabled="disabled">
+                  <md-icon>school</md-icon>
+                  Academy
+                </md-button>
+            </md-menu-item>
+            <md-menu-divider></md-menu-divider>
+            <md-menu-item>
+              <md-button>
+                <md-icon ng-click="go('/account')">settings</md-icon>
+                Kontoinställningar
+              </md-button>
+            </md-menu-item>
+            <md-menu-item>
+              <md-button>
+                <md-icon>exit_to_app</md-icon>
+                Logga ut
               </md-button>
             </md-menu-item>
           </md-menu-content>

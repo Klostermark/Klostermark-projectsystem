@@ -22,7 +22,6 @@ var app = angular.module('myApp', [
     });
   }]);
 
-
 /* -------- app/src/js/configs/config.js -------- */ 
 
 'use strict';
@@ -116,6 +115,9 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .whenAuthenticated('/companies/company', {
     templateUrl: 'templates/companies/single.html',
+  })
+  .whenAuthenticated('/companies/createandedit', {
+    templateUrl: 'templates/companies/createandedit.html',
   })
   .whenAuthenticated('/home', {
     templateUrl: 'templates/home.html',
@@ -547,6 +549,15 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
     ]);
 
 })(angular);
+
+
+/* -------- app/src/js/controllers/sidenav.js -------- */ 
+
+app.controller('NavController', function($scope, $mdSidenav) {
+  $scope.openLeftMenu = function() {
+    $mdSidenav('left').toggle();
+  };
+});
 
 
 /* -------- app/src/js/directives/appversion-directive.js -------- */ 
