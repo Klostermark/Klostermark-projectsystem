@@ -43,8 +43,8 @@ app.config(['$routeProvider', function($routeProvider) {
     templateUrl: 'templates/categories.html'
   });
 
-  $routeProvider.whenAuthenticated('/settings/categories/create', {
-    templateUrl: 'templates/categories/create.html'
+  $routeProvider.whenAuthenticated('/settings/categories/id', {
+    templateUrl: 'templates/categories/id.html'
   });
 
   $routeProvider.whenAuthenticated('/settings/subcategories', {
