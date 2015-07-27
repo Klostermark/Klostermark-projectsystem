@@ -30,6 +30,9 @@ app.config(['$routeProvider', function($routeProvider) {
   .whenAuthenticated('/companies/company', {
     templateUrl: 'templates/companies/single.html',
   })
+  .whenAuthenticated('/companies/createandedit', {
+    templateUrl: 'templates/companies/createandedit.html',
+  })
   .whenAuthenticated('/home', {
     templateUrl: 'templates/home.html',
     controller: 'HomeCtrl',
