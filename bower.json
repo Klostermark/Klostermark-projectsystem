@@ -17,5 +17,8 @@
     "firebase": "2.2.2",
     "angularfire": "~1.1.2",
     "mockfirebase": "~0.10.3"
+  },
+  "devDependencies": {
+    "angular-messages": "~1.4.3"
   }
 }
