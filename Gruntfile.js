@@ -50,7 +50,7 @@ module.exports = function (grunt) {
                 options: {
                     open: true,
                     keepalive: true,
-                    port: 1337,
+                    port: 1338,
                     base: ['app/'],
                     // livereload: true
                 }

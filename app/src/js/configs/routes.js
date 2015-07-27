@@ -1,43 +1,36 @@
 app.config(['$routeProvider', function($routeProvider) {
-  $routeProvider.whenAuthenticated('/chat', {
+
+  $routeProvider
+  .whenAuthenticated('/chat', {
     templateUrl: 'templates/chat.html',
     controller: 'ChatCtrl'
-  });
-
-  $routeProvider.whenAuthenticated('/account', {
+  })
+  .whenAuthenticated('/account', {
     templateUrl: 'templates/account.html',
     controller: 'AccountCtrl'
-  });
-
-  $routeProvider.whenAuthenticated('/settings', {
+  })
+  .whenAuthenticated('/settings', {
     templateUrl: 'templates/settings.html',
-  });
-
-  $routeProvider.whenAuthenticated('/settings/categories', {
-    templateUrl: 'templates/categories.html'
-  });
-
-  $routeProvider.whenAuthenticated('/settings/categories/id', {
-    templateUrl: 'templates/categories/id.html'
-  });
-
-  $routeProvider.whenAuthenticated('/settings/subcategories', {
-    templateUrl: 'templates/subcategories/index.html',
-  });
-
-  $routeProvider.whenAuthenticated('/settings/subcategories/create', {
-    templateUrl: 'templates/subcategories/create.html',
-  });
-
-  $routeProvider.whenAuthenticated('/companies', {
+  })
+  .whenAuthenticated('/settings/categories', {
+    templateUrl: 'templates/categories/index.html'
+  })
+  .whenAuthenticated('/settings/categories/:id', {
+    templateUrl: 'templates/categories/category.html'
+  })
+  .whenAuthenticated('/settings/tasks', {
+    templateUrl: 'templates/tasks/index.html',
+  })
+  .whenAuthenticated('/settings/tasks/:id', {
+    templateUrl: 'templates/tasks/task.html',
+  })
+  .whenAuthenticated('/companies', {
     templateUrl: 'templates/companies/list.html',
-  });
-
-  $routeProvider.whenAuthenticated('/companies/company', {
+  })
+  .whenAuthenticated('/companies/company', {
     templateUrl: 'templates/companies/single.html',
-  });
-
-  $routeProvider.whenAuthenticated('/home', {
+  })
+  .whenAuthenticated('/home', {
     templateUrl: 'templates/home.html',
     controller: 'HomeCtrl',
     resolve: {
@@ -49,11 +42,13 @@ app.config(['$routeProvider', function($routeProvider) {
         return Auth.$waitForAuth();
       }]
     }
-  });
-
-  $routeProvider.when('/login', {
+  })
+  .when('/login', {
     controller: 'LoginCtrl',
     templateUrl: 'templates/login.html'
-  });
+  })
+  .otherwise({
+    templateUrl: 'templates/404.html'
+  })
 
 }]);
