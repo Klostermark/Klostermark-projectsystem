@@ -1,0 +1,74 @@
+<md-card>
+    <md-card-content>
+        <h2>Konto</h2>
+
+        <form>
+            <fieldset>
+                <legend>Profile</legend>
+
+                    <md-input-container class="md-input-has-value">
+                        <label><span>Name:</span></label>
+                        <input type="text" name="name" ng-model="profile.name"/ disabled="true">
+                    </md-input-container>
+
+            </fieldset>
+        </form>
+    </md-card-content>
+</md-card>
+<md-card>
+    <md-card-content>
+    <h2>Lösenord</h2>
+        <form>
+            <fieldset>
+                <legend>Change Password</legend>
+                <md-input-container>
+                    <label>Old Password:</label>
+                    <input type="password" ng-keypress="clear()" ng-model="oldpass"/>
+                </md-input-container>
+
+                <md-input-container>
+                    <label>New Password:</label>
+                    <input type="password" ng-keypress="clear()" ng-model="newpass"/>
+                </md-input-container>
+
+                <md-input-container>
+                    <label>Confirm New Password:</label>
+                    <input type="password" ng-keypress="clear()" ng-model="confirm"/>
+                </md-input-container>
+
+                <md-button ng-click="changePassword(oldpass, newpass, confirm)" class="md-primary md-raised">Ändra lösenord</md-button>
+
+                <p class="error" ng-show="err">{{err}}</p>
+                <p class="good" ng-show="msg">{{msg}}</p>
+            </fieldset>
+        </form>
+    </md-card>
+</md-card-content>
+
+<md-card>
+    <md-card-content>
+    <h2>E-postadresser</h2>
+        <form>
+            <fieldset>
+                <legend>Change Email</legend>
+
+                <md-input-container>
+                    <label>New Email:</label>
+                    <input type="text" ng-keypress="clear()" ng-model="newEmail"/>
+                </md-input-container>
+
+                <md-input-container>
+                    <label>Lösenord:</label>
+                    <input type="password" ng-keypress="clear()" ng-model="pass"/>
+                </md-input-container>
+
+                <md-button ng-click="changeEmail(pass, newEmail)" class="md-primary md-raised">Ändra e-postadress</md-button>
+
+                <p class="error" ng-show="emailerr">{{emailerr}}</p>
+                <p class="good" ng-show="emailmsg">{{emailmsg}}</p>
+            </fieldset>
+        </form>
+
+        <md-button ng-click="logout()" class="md-primary md-raised">Log Out</md-button>
+    </md-card-content>
+</md-card>

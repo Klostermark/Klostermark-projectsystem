@@ -1,0 +1,23 @@
+<section layout="row" layout-sm="column" layout-align="center center">
+    <form flex="33">
+        <md-card>
+            <md-card-content>
+
+                <md-input-container md-no-float>
+                  <label>E-postadress</label>
+                  <input type="text" ng-model="email">
+                </md-input-container>
+
+                <md-input-container md-no-float>
+                  <label>Lösenord</label>
+                  <input type="password" ng-model="pass">
+                </md-input-container>
+
+                <p ng-show="err" class="error">{{err}}</p>
+            <div class="md-actions" layout="row" layout-align="end center">
+                <md-button ng-click="login(email, pass)" class="md-primary md-raised">Logga in</md-button>
+            </div>
+            </md-card-content>
+        </md-card>
+    </form>
+</section>

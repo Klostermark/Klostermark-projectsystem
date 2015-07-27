@@ -1,0 +1,45 @@
+md-card .top {
+  background-color: #3f51b5;
+  color: #FFFFFF;
+  height: 12e; }
+
+.changed {
+  color: orange; }
+
+md-fab-speed-dial.md-fab-bottom-right {
+  top: auto;
+  right: 20px;
+  bottom: 20px;
+  left: auto;
+  position: absolute; }
+
+md-fab-speed-dial.md-fab-bottom-left {
+  top: auto;
+  right: auto;
+  bottom: 20px;
+  left: 20px;
+  position: absolute; }
+
+.md-button.md-fab.md-fab-bottom-right {
+  position: fixed; }
+
+footer {
+  position: fixed;
+  bottom: 10px;
+  left: 20px;
+  color: #A7A7A7; }
+
+.container {
+  width: 1200px;
+  margin-left: auto;
+  margin-right: auto; }
+
+[ng\:cloak],
+[ng-cloak],
+[data-ng-cloak],
+[x-ng-cloak],
+.ng-cloak,
+.x-ng-cloak {
+  display: none !important; }
+
+/*# sourceMappingURL=app.css.map */
