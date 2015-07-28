@@ -60,11 +60,33 @@
           <p>Integer turpis erat, porttitor vitae mi faucibus, laoreet interdum tellus. Curabitur posuere molestie dictum. Morbi eget congue risus, quis rhoncus quam. Suspendisse vitae hendrerit erat, at posuere mi. Cras eu fermentum nunc. Sed id ante eu orci commodo volutpat non ac est. Praesent ligula diam, congue eu enim scelerisque, finibus commodo lectus.</p>
         </md-content>
       </md-tab>
-      <md-tab label="three">
-        <md-content class="md-padding">
-          <h1 class="md-display-2">Tab Three</h1>
-          <p>Integer turpis erat, porttitor vitae mi faucibus, laoreet interdum tellus. Curabitur posuere molestie dictum. Morbi eget congue risus, quis rhoncus quam. Suspendisse vitae hendrerit erat, at posuere mi. Cras eu fermentum nunc. Sed id ante eu orci commodo volutpat non ac est. Praesent ligula diam, congue eu enim scelerisque, finibus commodo lectus.</p>
-        </md-content>
+      <md-tab label="Löner">
+
+        <div class="container">
+          <md-card>
+            <md-list>
+              <md-list-item ng-click="navigateTo()">
+                <p>Data Usage</p>
+                <md-icon>mode_edit</md-icon>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item ng-click="navigateTo()">
+                <p>Data Usage</p>
+                <md-icon>mode_edit</md-icon>
+              </md-list-item>
+              <md-divider></md-divider>
+              <md-list-item ng-click="navigateTo()">
+                <p>Data Usage</p>
+                <md-icon>mode_edit</md-icon>
+              </md-list-item>
+            </md-list>
+          </md-card>
+        </div>
+
+        <md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Lägg till löneuppdrag">
+          <md-icon>add</md-icon>
+        </md-button>
+
       </md-tab>
     </md-tabs>
   </md-content>

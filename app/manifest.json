@@ -1,0 +1,17 @@
+{
+ "name": "Klostermark Projektstöd",
+ "description": "Ett projektsystem till Klostermark",
+ "version": "1.0.0",
+ "manifest_version": 2,
+ "icons": {
+ "128": "icon_128.png"
+ },
+   "app": {
+   "urls": [
+   "https://klostermark.firebaseapp.com/"
+   ],
+   "launch": {
+   "web_url": "https://klostermark.firebaseapp.com/"
+   }
+ }
+}
