@@ -9,20 +9,15 @@ angular
 
 
     var
-      url = FBURL + '/tasks',
-      ref = new Firebase(url),
+      refTasks = new Firebase(FBURL + '/tasks'),
       methods = {};
 
     methods.all = function () {
-      return $firebaseArray(ref);
+      return $firebaseArray(refTasks);
     }
 
     methods.get = function (id) {
-      return $firebaseObject(ref.child(id));
-    }
-
-    methods.update = function (id, data) {
-      return ref.child(id).set(data);
+      return $firebaseObject(refTasks.child(id));
     }
 
     return methods;

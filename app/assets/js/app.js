@@ -706,21 +706,94 @@ app.controller('NavController', function($scope, $mdSidenav) {
     '$scope',
     '$routeParams',
     'tasksFactory',
-    function($scope, $routeParams, tasksFactory) {
+    'notificationsFactory',
+    'categoriesFactory',
+    function($scope, $routeParams, tasksFactory, notificationsFactory, categoriesFactory) {
 
-      var id = $routeParams.id;
+      var
+        self = this,
+        id = $routeParams.id;
 
       $scope.status = 'pristine';
+      $scope.routine = {};
+      $scope.category = {};
 
+      // fetch data
       $scope.task = tasksFactory.get(id);
+      $scope.categories = categoriesFactory.all();
 
-      console.log($scope.task)
+      // watch for fully loaded data
+      $scope.task.$watch(function () {
+        self.fetched();
+      })
+      $scope.categories.$watch(function () {
+        self.fetched();
+      })
+
+      // wait so all data is fetched
+      this.fetched = function () {
+        this.fetchedProgress = this.fetchedProgress === undefined ? 0 : this.fetchedProgress + 1;
+
+        if (this.fetchedProgress >= 2) {
+          $scope.fetched = true;
+          // issue#2
+          $scope.category = this.getCategory();
+        }
+      }
+
+      this.getCategory = function () {
+        var i;
+
+        for (i = 0; i < $scope.categories.length; i++) {
+          if ($scope.categories[i].$id === $scope.task.category) {
+            return $scope.categories[i];
+          }
+        }
+      }
+
+      $scope.filterCategories = function (match) {
+        var
+          i,
+          categoriesArray = []
+
+        // filter
+        for (i = 0; i < $scope.categories.length; i++) {
+          if ($scope.categories[i].name.toLowerCase().indexOf(match.toLowerCase()) > -1) {
+            categoriesArray.push($scope.categories[i]);
+          }
+        }
+
+        return categoriesArray;
+      }
+
+      $scope.selectedCategory = function (category) {
+        // add to task
+        $scope.task.category = category.$id;
+      }
 
       $scope.submit = function (form) {
+        var notificationId;
         
-        if (form.$valid) {
+        if (form.$valid && $scope.task.category && $scope.task.category.length) {
           $scope.status = 'submitting';
 
+          // the routine has changed
+          if ($scope.routine.changed) {
+            notificationId = notificationsFactory.push({
+              taskId: id,
+              description: $scope.routine.description,
+              timestamp: Firebase.ServerValue.TIMESTAMP
+            });
+
+            // add notification id to task
+            if ($scope.task.notifications) {
+              $scope.task.notifications.push(notificationId);
+            } else {
+              $scope.task.notifications = [notificationId];
+            }
+          }
+
+          // save task
           $scope.task
           .$save().then(function () {
             $scope.status = 'submitted';
@@ -803,10 +876,6 @@ angular
       return $firebaseObject(ref.child(id));
     }
 
-    methods.update = function (id, data) {
-      return ref.child(id).set(data);
-    }
-
     return methods;
 
   }]);
@@ -881,6 +950,33 @@ angular.module('firebase.utils', ['firebase', 'myApp.config'])
 
 
 
+/* -------- app/src/js/services/factories/firebase/notifications.js -------- */ 
+
+angular
+.module('myApp')
+.factory('notificationsFactory', [
+  'fbutil',
+  '$firebaseArray',
+  '$firebaseObject',
+  'FBURL',
+  function(fbutil, $firebaseArray, $firebaseObject, FBURL) {
+
+
+    var
+      refNotifications = new Firebase(FBURL + '/notifications'),
+      methods = {};
+
+    methods.push = function (data) {
+      var ref = refNotifications.push(data);
+      // return generated id
+      return ref.path.pieces_[1];
+    }
+
+    return methods;
+
+  }]);
+
+
 /* -------- app/src/js/services/factories/firebase/tasks.js -------- */ 
 
 angular
@@ -894,20 +990,15 @@ angular
 
 
     var
-      url = FBURL + '/tasks',
-      ref = new Firebase(url),
+      refTasks = new Firebase(FBURL + '/tasks'),
       methods = {};
 
     methods.all = function () {
-      return $firebaseArray(ref);
+      return $firebaseArray(refTasks);
     }
 
     methods.get = function (id) {
-      return $firebaseObject(ref.child(id));
-    }
-
-    methods.update = function (id, data) {
-      return ref.child(id).set(data);
+      return $firebaseObject(refTasks.child(id));
     }
 
     return methods;

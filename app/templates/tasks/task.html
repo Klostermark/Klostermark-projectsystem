@@ -2,21 +2,70 @@
   <md-card>
     <md-card-content>
 
-      <div ng-if=" ! task">
+      <div ng-hide="fetched">
         <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
         </md-progress-circular>
-        <p style="text-align:center">Laddar kategori</p>
+        <p style="text-align:center">Laddar moment</p>
       </div>
 
-      <form name="updateTaskForm" ng-submit="submit(updateTaskForm)" ng-if="task" novalidate>
+      <form name="updateTaskForm" ng-submit="submit(updateTaskForm)" ng-if="fetched" novalidate>
 
         <md-input-container>
-          <label>Namn</label>
+          <label>Momentnamn</label>
           <input type="text" name="name" ng-model="task.name" required>
           <div ng-messages="updateTaskForm.name.$error" ng-show="updateTaskForm.name.$touched || status === 'invalid'">
-            <div ng-message="required">Du måste ange att namn.</div>
+            <div ng-message="required">Du måste ange ett momentnamn.</div>
           </div>
         </md-input-container>
+
+        <md-input-container>
+          <label>Momentbeskrivning</label>
+          <textarea name="description" ng-model="task.description" required></textarea>
+          <div ng-messages="updateTaskForm.description.$error" ng-show="updateTaskForm.description.$touched || status === 'invalid'">
+            <div ng-message="required">Du måste ange en momentbeskrivning.</div>
+          </div>
+        </md-input-container>
+
+        <md-autocomplete flex required
+          md-autofocus="false"
+          md-input-name="category"
+          md-selected-item="category"
+          md-search-text="match"
+          md-search-text-change="null"
+          md-items="category in filterCategories(match)"
+          md-selected-item-change="selectedCategory(category)"
+          md-item-text="category.name"
+          md-floating-label="Välj en kategori"
+        >
+          <md-item-template>
+            <span>{{category.name}}</span>
+          </md-item-template>
+          <md-not-found>
+            Inga kategorier funna innehållandes "{{match}}".
+          </md-not-found>
+
+          <div ng-messages="updateTaskForm.category.$error" ng-if="updateTaskForm.category.$touched">
+            <div ng-message="required">Du måste tilldela momentet en kategori</div>
+          </div>
+
+        </md-autocomplete>
+
+        <!-- issue#1 -->
+        <span>Du måste tilldela momentet en kategori. Tillfällig, se issues.</span>
+
+        <md-checkbox ng-model="routine.changed" aria-label="Checkbox 1">
+          Förändring i rutin
+        </md-checkbox>
+
+        <md-input-container ng-if="routine.changed">
+          <label>Beskriv rutinförängdringen</label>
+          <textarea name="routine" ng-model="routine.description" required></textarea>
+          <div ng-messages="updateTaskForm.routine.$error" ng-show="updateTaskForm.routine.$touched || status === 'invalid'">
+            <div ng-message="required">Du måste ange vad som förändrats i rutinen.</div>
+          </div>
+        </md-input-container>
+
+
 
         <div class="md-actions" layout="row" layout-align="end center">
           <span ng-show="status === 'invalid'">
@@ -50,28 +99,3 @@
     </md-card-content>
   </md-card>
 </div>
-
-
-
-<!-- <div class="container">
-  <md-card>
-    <md-card-content>
-      <form>
-        Redigera subcategory
-        <md-input-container>
-          <label>Namn</label>
-          <input type="text">
-        </md-input-container>
-        <md-input-container>
-          <label>Beskrivning</label>
-          <textarea></textarea>
-        </md-input-container>
-        <p>autocomplete (ng-material) som hämtar från huvudkategorier</p>
-        <p>Förändring i rutin om denna checkas syns ett nytt VARFÖR fält under.</p>
-        <div class="md-actions" layout="row" layout-align="end center">
-          <md-button class="md-primary md-raised">Spara</md-button>
-        </div>
-      </form>
-    </md-card-content>
-  </md-card>
-</div> -->

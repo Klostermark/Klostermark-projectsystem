@@ -21,10 +21,6 @@ angular
       return $firebaseObject(ref.child(id));
     }
 
-    methods.update = function (id, data) {
-      return ref.child(id).set(data);
-    }
-
     return methods;
 
   }]);
