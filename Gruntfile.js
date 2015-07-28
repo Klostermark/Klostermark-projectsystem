@@ -37,7 +37,7 @@ module.exports = function (grunt) {
         watch: {
             js: {
                 files: ['app/src/js/*.js', 'app/src/js/**/*.js'],
-                tasks: ['concat']
+                tasks: ['neuter']
             },
             sass: {
                 files: ['app/src/sass/*', 'app/src/sass/**/*'],
@@ -56,6 +56,24 @@ module.exports = function (grunt) {
                 }
             }
         },
+
+        neuter: {
+            application: {
+                src: [
+                    'app/src/js/*.js',
+                    'app/src/js/**/*.js',
+                    '!app/src/js/vendor/*.js'
+                ],
+                dest: 'app/assets/js/app.js'
+            },
+            options: {
+                template: "{%= src %}",
+                basePath: "app/src/js/",
+                process: function(src, filepath) {
+                    return '\n/* -------- ' + filepath + ' -------- */ \n\n' + src;
+                },
+            }
+        }
     });
 
 
@@ -63,6 +81,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-sass');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-neuter');
 
     grunt.registerTask('default', ['watch']);
 

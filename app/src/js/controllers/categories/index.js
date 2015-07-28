@@ -9,16 +9,17 @@
     '$mdDialog',
     function($scope, categoriesFactory, $mdDialog) {
 
-      $scope.categories = categoriesFactory;
+      $scope.categories = categoriesFactory.all();
 
       $scope.add = function () {
         // call modal into existance
         $mdDialog.show({
-          controller: 'CategoriesNewCtrl',
+          controller: 'NewCategoryCtrl',
           templateUrl: 'templates/dialogs/new-category.html',
           parent: angular.element(document.body)
         })
       }
+
 
     }]);
 

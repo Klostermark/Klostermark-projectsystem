@@ -10,9 +10,9 @@ var app = angular.module('myApp', [
     'myApp.security',
     'myApp.home',
     'myApp.account',
-    'myApp.chat',
     'myApp.login',
-    'myApp.categories'
+    'myApp.categories',
+    'firebase' // temp
   ])
 
   .run(['$rootScope', 'Auth', function($rootScope, Auth) {
@@ -21,6 +21,7 @@ var app = angular.module('myApp', [
       $rootScope.loggedIn = !!user;
     });
   }]);
+
 
 /* -------- app/src/js/configs/config.js -------- */ 
 
@@ -48,6 +49,7 @@ angular.module('myApp.config', [])
       }, 250);
     }
   }]);
+
 
 
 
@@ -81,15 +83,12 @@ angular.module('myApp')
       }]);
   }]);
 
+
 /* -------- app/src/js/configs/routes.js -------- */ 
 
 app.config(['$routeProvider', function($routeProvider) {
 
   $routeProvider
-  .whenAuthenticated('/chat', {
-    templateUrl: 'templates/chat.html',
-    controller: 'ChatCtrl'
-  })
   .whenAuthenticated('/account', {
     templateUrl: 'templates/account.html',
     controller: 'AccountCtrl'
@@ -102,7 +101,8 @@ app.config(['$routeProvider', function($routeProvider) {
     controller: 'CategoriesCtrl',
   })
   .whenAuthenticated('/settings/categories/:id', {
-    templateUrl: 'templates/categories/category.html'
+    templateUrl: 'templates/categories/category.html',
+    controller: 'CategoryCtrl',
   })
   .whenAuthenticated('/settings/tasks', {
     templateUrl: 'templates/tasks/index.html',
@@ -141,6 +141,7 @@ app.config(['$routeProvider', function($routeProvider) {
   })
 
 }]);
+
 
 /* -------- app/src/js/configs/security.js -------- */ 
 
@@ -219,6 +220,7 @@ app.config(['$routeProvider', function($routeProvider) {
 })(angular);
 
 
+
 /* -------- app/src/js/controllers/account.js -------- */ 
 
 (function (angular) {
@@ -289,6 +291,11 @@ app.config(['$routeProvider', function($routeProvider) {
 
 })(angular);
 
+
+/* -------- app/src/js/controllers/categories/category.js -------- */ 
+
+
+
 /* -------- app/src/js/controllers/categories/index.js -------- */ 
 
 (function (angular) {
@@ -302,28 +309,82 @@ app.config(['$routeProvider', function($routeProvider) {
     '$mdDialog',
     function($scope, categoriesFactory, $mdDialog) {
 
-      $scope.categories = categoriesFactory;
+      $scope.categories = categoriesFactory.all();
 
       $scope.add = function () {
         // call modal into existance
         $mdDialog.show({
-          controller: 'CategoriesNewCtrl',
+          controller: 'NewCategoryCtrl',
           templateUrl: 'templates/dialogs/new-category.html',
           parent: angular.element(document.body)
         })
       }
 
+
     }]);
 
 })(angular);
+
+(function (angular) {
+  "use strict";
+
+  angular
+  .module('myApp.categories')
+  .controller('CategoryCtrl', [
+    '$scope',
+    '$routeParams',
+    'categoriesFactory',
+    '$firebaseUtils',
+    function($scope, $routeParams, categoriesFactory, $firebaseUtils) {
+
+      var id = $routeParams.id;
+
+      $scope.submitting = false;
+      $scope.submitted = false;
+      $scope.invalid = false;
+
+      $scope.status = 'pristine';
+
+      $scope.category = categoriesFactory.get(id);
+
+      console.log($scope.category);
+
+      $scope.submit = function (form) {
+        
+        if (form.$valid) {
+          $scope.invalid = false;
+          $scope.submitting = true;
+          $scope.status = 'submitting';
+
+          $scope.category
+          .$save().then(function () {
+            $scope.submitting = false;
+            $scope.submitted = true;
+            $scope.status = 'submitted';
+            form.$setPristine();
+          });
+
+        } else {
+          $scope.invalid = true;
+          $scope.status = 'invalid'
+        }
+
+      }
+
+
+    }]);
+
+})(angular);
+
 
 /* -------- app/src/js/controllers/categories/new.js -------- */ 
 
 (function (angular) {
   "use strict";
 
-  angular.module('myApp.categories')
-  .controller('CategoriesNewCtrl', [
+  angular
+  .module('myApp.categories')
+  .controller('NewCategoryCtrl', [
     '$scope',
     'categoriesFactory',
     '$mdDialog',
@@ -341,7 +402,9 @@ app.config(['$routeProvider', function($routeProvider) {
           $scope.invalid = false;
           $scope.submitting = true;
 
-          categoriesFactory.$add({
+          categoriesFactory
+          .all()
+          .$add({
             name: $scope.category.name
           })
           .then(function () {
@@ -357,28 +420,10 @@ app.config(['$routeProvider', function($routeProvider) {
 
       }
 
-
     }]);
 
 })(angular);
 
-/* -------- app/src/js/controllers/chat.js -------- */ 
-
-(function (angular) {
-  "use strict";
-
-  var app = angular.module('myApp.chat', ['ngRoute', 'firebase.utils', 'firebase']);
-
-  app.controller('ChatCtrl', ['$scope', 'messageList', function($scope, messageList) {
-      $scope.messages = messageList;
-      $scope.addMessage = function(newMessage) {
-        if( newMessage ) {
-          $scope.messages.$add({text: newMessage});
-        }
-      };
-    }]);
-
-})(angular);
 
 /* -------- app/src/js/controllers/home.js -------- */ 
 
@@ -394,6 +439,7 @@ app.config(['$routeProvider', function($routeProvider) {
   }]);
 
 })(angular);
+
 
 
 
@@ -474,6 +520,7 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
     }
   }]);
 
+
 /* -------- app/src/js/controllers/security.js -------- */ 
 
 (function (angular) {
@@ -551,6 +598,7 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
 })(angular);
 
 
+
 /* -------- app/src/js/controllers/sidenav.js -------- */ 
 
 app.controller('NavController', function($scope, $mdSidenav) {
@@ -558,6 +606,7 @@ app.controller('NavController', function($scope, $mdSidenav) {
     $mdSidenav('left').toggle();
   };
 });
+
 
 
 /* -------- app/src/js/directives/appversion-directive.js -------- */ 
@@ -576,6 +625,7 @@ angular.module('myApp')
   }]);
 
 
+
 /* -------- app/src/js/filters/reverse-filter.js -------- */ 
 
 'use strict';
@@ -589,12 +639,14 @@ angular.module('myApp')
     };
   });
 
+
 /* -------- app/src/js/services/factories/firebase/auth.js -------- */ 
 
 angular.module('firebase.auth', ['firebase', 'firebase.utils'])
   .factory('Auth', ['$firebaseAuth', 'fbutil', function($firebaseAuth, fbutil) {
     return $firebaseAuth(fbutil.ref());
   }]);
+
 
 
 /* -------- app/src/js/services/factories/firebase/categories.js -------- */ 
@@ -604,19 +656,32 @@ angular
 .factory('categoriesFactory', [
   'fbutil',
   '$firebaseArray',
-  function(fbutil, $firebaseArray) {
+  '$firebaseObject',
+  'FBURL',
+  function(fbutil, $firebaseArray, $firebaseObject, FBURL) {
 
-    var ref = fbutil.ref('categories');
-    return $firebaseArray(ref);
+
+    var
+      url = FBURL + '/categories',
+      ref = new Firebase(url),
+      methods = {};
+
+    methods.all = function () {
+      return $firebaseArray(ref);
+    }
+
+    methods.get = function (id) {
+      return $firebaseObject(ref.child(id));
+    }
+
+    methods.update = function (id, data) {
+      return ref.child(id).set(data);
+    }
+
+    return methods;
 
   }]);
 
-/* -------- app/src/js/services/factories/firebase/factories.js -------- */ 
-
-app.factory('messageList', ['fbutil', '$firebaseArray', function(fbutil, $firebaseArray) {
-  var ref = fbutil.ref('messages').limitToLast(10);
-  return $firebaseArray(ref);
-}]);
 
 /* -------- app/src/js/services/factories/firebase/firebase.utils.js -------- */ 
 

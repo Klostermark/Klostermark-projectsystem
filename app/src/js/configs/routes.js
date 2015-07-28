@@ -1,10 +1,6 @@
 app.config(['$routeProvider', function($routeProvider) {
 
   $routeProvider
-  .whenAuthenticated('/chat', {
-    templateUrl: 'templates/chat.html',
-    controller: 'ChatCtrl'
-  })
   .whenAuthenticated('/account', {
     templateUrl: 'templates/account.html',
     controller: 'AccountCtrl'
@@ -17,7 +13,8 @@ app.config(['$routeProvider', function($routeProvider) {
     controller: 'CategoriesCtrl',
   })
   .whenAuthenticated('/settings/categories/:id', {
-    templateUrl: 'templates/categories/category.html'
+    templateUrl: 'templates/categories/category.html',
+    controller: 'CategoryCtrl',
   })
   .whenAuthenticated('/settings/tasks', {
     templateUrl: 'templates/tasks/index.html',

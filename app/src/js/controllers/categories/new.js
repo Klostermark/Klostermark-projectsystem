@@ -1,8 +1,9 @@
 (function (angular) {
   "use strict";
 
-  angular.module('myApp.categories')
-  .controller('CategoriesNewCtrl', [
+  angular
+  .module('myApp.categories')
+  .controller('NewCategoryCtrl', [
     '$scope',
     'categoriesFactory',
     '$mdDialog',
@@ -20,7 +21,9 @@
           $scope.invalid = false;
           $scope.submitting = true;
 
-          categoriesFactory.$add({
+          categoriesFactory
+          .all()
+          .$add({
             name: $scope.category.name
           })
           .then(function () {
@@ -35,7 +38,6 @@
         }
 
       }
-
 
     }]);
 

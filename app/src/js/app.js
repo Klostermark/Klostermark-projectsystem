@@ -7,9 +7,9 @@ var app = angular.module('myApp', [
     'myApp.security',
     'myApp.home',
     'myApp.account',
-    'myApp.chat',
     'myApp.login',
-    'myApp.categories'
+    'myApp.categories',
+    'firebase' // temp
   ])
 
   .run(['$rootScope', 'Auth', function($rootScope, Auth) {
