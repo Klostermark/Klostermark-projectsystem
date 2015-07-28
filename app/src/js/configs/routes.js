@@ -18,9 +18,11 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .whenAuthenticated('/settings/tasks', {
     templateUrl: 'templates/tasks/index.html',
+    controller: 'TasksCtrl',
   })
   .whenAuthenticated('/settings/tasks/:id', {
     templateUrl: 'templates/tasks/task.html',
+    controller: 'TaskCtrl',
   })
   .whenAuthenticated('/companies', {
     templateUrl: 'templates/companies/list.html',

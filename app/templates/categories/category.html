@@ -13,19 +13,20 @@
         <md-input-container>
           <label>Namn</label>
           <input type="text" name="name" ng-model="category.name" required>
-          <div ng-messages="updateCategoryForm.name.$error" ng-show="updateCategoryForm.name.$touched || invalid">
+          <div ng-messages="updateCategoryForm.name.$error" ng-show="updateCategoryForm.name.$touched || status === 'invalid'">
             <div ng-message="required">Du måste ange att namn.</div>
           </div>
         </md-input-container>
 
         <div class="md-actions" layout="row" layout-align="end center">
-          <span ng-show="invalid">
+          <span ng-show="status === 'invalid'">
             Formuläret var inte korrekt ifyllt.
           </span>
           <md-button
             class="md-primary md-raised"
             type="submit"
             ng-disabled="updateCategoryForm.$pristine"
+            aria-label="spara"
           >
 
             <span ng-if="updateCategoryForm.$pristine">

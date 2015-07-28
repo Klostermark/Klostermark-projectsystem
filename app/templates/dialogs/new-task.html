@@ -1,0 +1,37 @@
+<md-dialog>
+  <form name="createTaskForm" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Skapa nytt moment</h2>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+
+    <p>
+      Här skapar du ett moment som du senare kan välja att lägga inuti en kategori.
+    </p>
+
+    <md-input-container>
+      <label>Momentnamn</label>
+      <input name="name" ng-model="task.name" required>
+      <div ng-messages="createTaskForm.name.$error" ng-show="createTaskForm.name.$touched || invalid">
+        <div ng-message="required">Du måste ange att namn.</div>
+      </div>
+    </md-input-container>
+
+    </md-dialog-content>
+    <div class="md-actions" layout="row">
+      <span flex>
+        <span ng-show="invalid">
+          Formuläret var inte korrekt ifyllt.
+        </span>
+      </span>
+      <md-button ng-click="cancel()" class="md-primary">
+        Avbryt
+      </md-button>
+      <md-button ng-click="submit(createTaskForm)" class="md-primary" ng-disabled="submitting">
+        Skapa
+      </md-button>
+    </div>
+  </form>
+</md-dialog>

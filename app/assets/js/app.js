@@ -12,6 +12,7 @@ var app = angular.module('myApp', [
     'myApp.account',
     'myApp.login',
     'myApp.categories',
+    'myApp.tasks',
     'firebase' // temp
   ])
 
@@ -106,9 +107,11 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .whenAuthenticated('/settings/tasks', {
     templateUrl: 'templates/tasks/index.html',
+    controller: 'TasksCtrl',
   })
   .whenAuthenticated('/settings/tasks/:id', {
     templateUrl: 'templates/tasks/task.html',
+    controller: 'TaskCtrl',
   })
   .whenAuthenticated('/companies', {
     templateUrl: 'templates/companies/list.html',
@@ -309,7 +312,16 @@ app.config(['$routeProvider', function($routeProvider) {
     '$mdDialog',
     function($scope, categoriesFactory, $mdDialog) {
 
+      // loader active in the beginning
+      $scope.fetchingData = true;
+
+      // fetch categories
       $scope.categories = categoriesFactory.all();
+
+      // data loaded, kill spinner
+      $scope.categories.$loaded().then(function () {
+        $scope.fetchingData = false;
+      })
 
       $scope.add = function () {
         // call modal into existance
@@ -334,43 +346,30 @@ app.config(['$routeProvider', function($routeProvider) {
     '$scope',
     '$routeParams',
     'categoriesFactory',
-    '$firebaseUtils',
-    function($scope, $routeParams, categoriesFactory, $firebaseUtils) {
+    function($scope, $routeParams, categoriesFactory) {
 
       var id = $routeParams.id;
-
-      $scope.submitting = false;
-      $scope.submitted = false;
-      $scope.invalid = false;
 
       $scope.status = 'pristine';
 
       $scope.category = categoriesFactory.get(id);
 
-      console.log($scope.category);
-
       $scope.submit = function (form) {
         
         if (form.$valid) {
-          $scope.invalid = false;
-          $scope.submitting = true;
           $scope.status = 'submitting';
 
           $scope.category
           .$save().then(function () {
-            $scope.submitting = false;
-            $scope.submitted = true;
             $scope.status = 'submitted';
             form.$setPristine();
           });
 
         } else {
-          $scope.invalid = true;
-          $scope.status = 'invalid'
+          $scope.status = 'invalid';
         }
 
       }
-
 
     }]);
 
@@ -609,6 +608,136 @@ app.controller('NavController', function($scope, $mdSidenav) {
 
 
 
+/* -------- app/src/js/controllers/tasks/index.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  var app = angular.module('myApp.tasks', ['ngRoute', 'firebase.utils', 'firebase', 'ngMaterial', 'ngMessages']);
+
+  app.controller('TasksCtrl', [
+    '$scope',
+    'tasksFactory',
+    '$mdDialog',
+    function($scope, tasksFactory, $mdDialog) {
+
+      // loader active in the beginning
+      $scope.fetchingData = true;
+
+      // fetch tasks
+      $scope.tasks = tasksFactory.all();
+
+      // data loaded, kill spinner
+      $scope.tasks.$loaded().then(function () {
+        $scope.fetchingData = false;
+      })
+
+      $scope.add = function () {
+        // call modal into existance
+        $mdDialog.show({
+          controller: 'NewTaskCtrl',
+          templateUrl: 'templates/dialogs/new-task.html',
+          parent: angular.element(document.body)
+        })
+      }
+
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/tasks/new.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  angular
+  .module('myApp.categories')
+  .controller('NewTaskCtrl', [
+    '$scope',
+    'tasksFactory',
+    '$mdDialog',
+    function($scope, tasksFactory, $mdDialog) {
+
+      $scope.subtmitting = false;
+      $scope.invalid = false; 
+
+      $scope.cancel = function () {
+        $mdDialog.cancel();
+      }
+
+      $scope.submit = function (form) {
+        if (form.$valid) {
+          $scope.invalid = false;
+          $scope.submitting = true;
+
+          tasksFactory
+          .all()
+          .$add({
+            name: $scope.task.name
+          })
+          .then(function () {
+            // data submitted succesfully
+            $scope.submitting = false;
+            $mdDialog.hide();
+          });
+
+        } else {
+          // form not valid
+          $scope.invalid = true;
+        }
+
+      }
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/tasks/task.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  angular
+  .module('myApp.tasks')
+  .controller('TaskCtrl', [
+    '$scope',
+    '$routeParams',
+    'tasksFactory',
+    function($scope, $routeParams, tasksFactory) {
+
+      var id = $routeParams.id;
+
+      $scope.status = 'pristine';
+
+      $scope.task = tasksFactory.get(id);
+
+      console.log($scope.task)
+
+      $scope.submit = function (form) {
+        
+        if (form.$valid) {
+          $scope.status = 'submitting';
+
+          $scope.task
+          .$save().then(function () {
+            $scope.status = 'submitted';
+            form.$setPristine();
+          });
+
+        } else {
+          $scope.status = 'invalid';
+        }
+
+      }
+
+    }]);
+
+})(angular);
+
+
 /* -------- app/src/js/directives/appversion-directive.js -------- */ 
 
 'use strict';
@@ -749,3 +878,38 @@ angular.module('firebase.utils', ['firebase', 'myApp.config'])
       }
    }]);
 
+
+
+
+/* -------- app/src/js/services/factories/firebase/tasks.js -------- */ 
+
+angular
+.module('myApp')
+.factory('tasksFactory', [
+  'fbutil',
+  '$firebaseArray',
+  '$firebaseObject',
+  'FBURL',
+  function(fbutil, $firebaseArray, $firebaseObject, FBURL) {
+
+
+    var
+      url = FBURL + '/tasks',
+      ref = new Firebase(url),
+      methods = {};
+
+    methods.all = function () {
+      return $firebaseArray(ref);
+    }
+
+    methods.get = function (id) {
+      return $firebaseObject(ref.child(id));
+    }
+
+    methods.update = function (id, data) {
+      return ref.child(id).set(data);
+    }
+
+    return methods;
+
+  }]);

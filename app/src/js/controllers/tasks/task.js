@@ -1,28 +1,28 @@
-require('controllers/categories/index.js');
-
 (function (angular) {
   "use strict";
 
   angular
-  .module('myApp.categories')
-  .controller('CategoryCtrl', [
+  .module('myApp.tasks')
+  .controller('TaskCtrl', [
     '$scope',
     '$routeParams',
-    'categoriesFactory',
-    function($scope, $routeParams, categoriesFactory) {
+    'tasksFactory',
+    function($scope, $routeParams, tasksFactory) {
 
       var id = $routeParams.id;
 
       $scope.status = 'pristine';
 
-      $scope.category = categoriesFactory.get(id);
+      $scope.task = tasksFactory.get(id);
+
+      console.log($scope.task)
 
       $scope.submit = function (form) {
         
         if (form.$valid) {
           $scope.status = 'submitting';
 
-          $scope.category
+          $scope.task
           .$save().then(function () {
             $scope.status = 'submitted';
             form.$setPristine();

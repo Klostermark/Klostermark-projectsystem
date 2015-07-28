@@ -9,7 +9,16 @@
     '$mdDialog',
     function($scope, categoriesFactory, $mdDialog) {
 
+      // loader active in the beginning
+      $scope.fetchingData = true;
+
+      // fetch categories
       $scope.categories = categoriesFactory.all();
+
+      // data loaded, kill spinner
+      $scope.categories.$loaded().then(function () {
+        $scope.fetchingData = false;
+      })
 
       $scope.add = function () {
         // call modal into existance

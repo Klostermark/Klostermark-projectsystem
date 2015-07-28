@@ -1,24 +1,36 @@
 <div class="container">
   <md-card>
-    <md-list>
-      <md-list-item ng-click="navigateTo()">
-        <p>Data Usage</p>
-        <md-icon>mode_edit</md-icon>
-      </md-list-item>
-      <md-divider></md-divider>
-      <md-list-item ng-click="navigateTo()">
-        <p>Data Usage</p>
-        <md-icon>mode_edit</md-icon>
-      </md-list-item>
-      <md-divider></md-divider>
-      <md-list-item ng-click="navigateTo()">
-        <p>Data Usage</p>
-        <md-icon>mode_edit</md-icon>
-      </md-list-item>
-    </md-list>
+    <md-content>
+
+      <div ng-if="fetchingData">
+        <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+        </md-progress-circular>
+        <p style="text-align:center">Laddar moment</p>
+      </div>
+
+      <p ng-show=" ! fetchingData && ! tasks.length" style="text-align:center">
+        För tillfället finns inga moment.
+      </p>
+
+      <md-list ng-hide=" ! fetchingData && ! tasks.length">
+
+        <md-list-item ng-repeat-start="category in tasks">
+          <p>
+            <a href="#/settings/tasks/{{ category.$id }}">
+              {{ category.name }}
+            </a>
+          </p>
+          <md-icon>mode_edit</md-icon>
+        </md-list-item>
+
+        <md-divider ng-repeat-end ng-if=" ! $last"></md-divider>
+
+      </md-list>
+
+    </md-content>
   </md-card>
 </div>
 
-<md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Lägg till kategori">
+<md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Lägg till moment" ng-click="add()">
   <md-icon>add</md-icon>
 </md-button>

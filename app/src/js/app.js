@@ -9,6 +9,7 @@ var app = angular.module('myApp', [
     'myApp.account',
     'myApp.login',
     'myApp.categories',
+    'myApp.tasks',
     'firebase' // temp
   ])
 
