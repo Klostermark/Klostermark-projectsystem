@@ -5,15 +5,16 @@
 
 // Declare app level module which depends on filters, and services
 var app = angular.module('myApp', [
-    'ngMaterial',
     'myApp.config',
     'myApp.security',
+    'myApp.mainController',
     'myApp.home',
     'myApp.account',
     'myApp.login',
     'myApp.categories',
     'myApp.tasks',
-    'firebase' // temp
+    'firebase', // temp
+    'ngMaterial'   // temp
   ])
 
   .run(['$rootScope', 'Auth', function($rootScope, Auth) {
@@ -518,6 +519,28 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
       return f + str.substr(1);
     }
   }]);
+
+
+/* -------- app/src/js/controllers/main.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  var app = angular.module('myApp.mainController', ['ngRoute']);
+
+  app.controller('mainCtrl', [
+    '$scope',
+    '$rootScope',
+    '$location',
+    function($scope, $rootScope, $location) {
+
+      $rootScope.navigate = function (path) {
+        $location.path(path);
+      }
+
+    }]);
+
+})(angular);
 
 
 /* -------- app/src/js/controllers/security.js -------- */ 

@@ -2,15 +2,16 @@
 
 // Declare app level module which depends on filters, and services
 var app = angular.module('myApp', [
-    'ngMaterial',
     'myApp.config',
     'myApp.security',
+    'myApp.mainController',
     'myApp.home',
     'myApp.account',
     'myApp.login',
     'myApp.categories',
     'myApp.tasks',
-    'firebase' // temp
+    'firebase', // temp
+    'ngMaterial'   // temp
   ])
 
   .run(['$rootScope', 'Auth', function($rootScope, Auth) {

@@ -14,11 +14,9 @@
 
       <md-list ng-hide=" ! fetchingData && ! tasks.length">
 
-        <md-list-item ng-repeat-start="category in tasks">
+        <md-list-item ng-repeat-start="task in tasks" ng-click="navigate('/settings/tasks/' + task.$id)">
           <p>
-            <a href="#/settings/tasks/{{ category.$id }}">
-              {{ category.name }}
-            </a>
+            {{ task.name }}
           </p>
           <md-icon>mode_edit</md-icon>
         </md-list-item>
