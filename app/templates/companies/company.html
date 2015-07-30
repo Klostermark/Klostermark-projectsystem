@@ -4,11 +4,25 @@
       <md-tab label="Moment">
         <md-content>
           <div class="container">
-            <md-card>
-              <p>MÅNADSDROPDOWN</p>
-              Ett moment
-              <md-list>
-                <md-list-item>
+
+            Anton, ska "message" ikonen trigga en popup med momentbeskrivningen?
+
+            <p>[[MÅNADSDROPDOWN]]</p>
+
+            <p ng-if=" ! company.categories">För närvarande finns inga moment kopplde till denna kund</p>
+
+            <md-card ng-if="company.categories" ng-repeat="category in company.categories">
+              {{ category.name }}
+              <md-list ng-if="category.tasks">
+
+                <md-list-item ng-repeat-start="task in category.tasks">
+                  <md-checkbox></md-checkbox>
+                  <p>{{ task.name }}</p>
+                  <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon> <!-- task.description -->
+                </md-list-item>
+                <md-divider ng-if=" ! $last" ng-repeat-end></md-divider>
+
+                <!-- <md-list-item>
                   <md-checkbox></md-checkbox>
                   <p>Data Usage</p>
                   <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon>
@@ -17,38 +31,12 @@
                 <md-list-item>
                   <md-checkbox></md-checkbox>
                   <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon>
-                </md-list-item>
-                <md-divider></md-divider>
-                <md-list-item>
-                  <md-checkbox></md-checkbox>
-                  <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary changed">new_releases<md-tooltip>Ny rutin: Nu ska det bokföras mot 2999 istället för 1201</md-tooltip></md-icon>
-                </md-list-item>
+                  <md-icon ng-click="navigateTo()" class="md-secondary changed">new_releases<md-tooltip>Här visas den senaste rutinändringen. Måste bara se till att hämta den senaste och kolla så den inte är äldre än 60 dagar...</md-tooltip></md-icon>
+                </md-list-item> -->
+
               </md-list>
             </md-card>
-            <md-card>
-              Ett annat moment
-              <md-list>
-                <md-list-item>
-                  <md-checkbox></md-checkbox>
-                  <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon>
-                </md-list-item>
-                <md-divider></md-divider>
-                <md-list-item>
-                  <md-checkbox></md-checkbox>
-                  <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon>
-                </md-list-item>
-                <md-divider></md-divider>
-                <md-list-item>
-                  <md-checkbox></md-checkbox>
-                  <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary changed">new_releases<md-tooltip>Ny rutin: Nu ska det bokföras mot 2999 istället för 1201</md-tooltip></md-icon>
-                </md-list-item>
-              </md-list>
-            </md-card>
+
           </div>
         </md-content>
       </md-tab>

@@ -1,0 +1,86 @@
+<div class="container">
+  <md-card>
+    <md-card-content>
+
+      <div ng-hide="fetched">
+        <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+        </md-progress-circular>
+        <p style="text-align:center">Laddar företag</p>
+      </div>
+
+      <form name="updateCompanyForm" ng-submit="submit(updateCompanyForm)" ng-if="fetched" novalidate>
+
+        <md-input-container>
+          <label>Företagsnamn</label>
+          <input type="text" name="name" ng-model="company.name" required>
+          <div ng-messages="updateCompanyForm.name.$error" ng-show="updateCompanyForm.name.$touched || status === 'invalid'">
+            <div ng-message="required">Du måste ange ett företagsnamn.</div>
+          </div>
+        </md-input-container>
+
+        <md-chips
+          class="custom-chips"
+          ng-model="companyCategories"
+          md-autocomplete-snap
+          md-require-match
+        >
+          <md-autocomplete
+            md-selected-item="category"
+            md-search-text="match"
+            md-search-text-change="null"
+            md-selected-item-change="addCategory(category)"
+            md-items="category in filterCategories(match)"
+            md-item-text="category.name"
+            placeholder="Sök efter kategori"
+          >
+            <span md-highlight-text="match">{{category.name}}</span>
+          </md-autocomplete>
+
+          <md-chip-template>
+            <span>
+              <strong>{{$chip.name}}</strong>
+            </span>
+          </md-chip-template>
+
+          <button
+            md-chip-remove
+            class="md-primary categories"
+            ng-click="removeChip($chip, updateCompanyForm)"
+          >
+            <md-icon md-svg-icon="md-close"></md-icon>
+          </button>
+
+        </md-chips>
+
+        <div class="md-actions" layout="row" layout-align="end center">
+          <span ng-show="status === 'invalid'">
+            Formuläret var inte korrekt ifyllt.
+          </span>
+          <md-button
+            class="md-primary md-raised"
+            type="submit"
+            ng-disabled="updateCompanyForm.$pristine"
+            aria-label="spara"
+          >
+
+            <span ng-if="updateCompanyForm.$pristine">
+              <span ng-if="status === 'pristine'">
+                <!-- första gången -->
+                Inget ändringar att spara
+              </span>
+              <span ng-if="status !== 'pristine'">
+                <!-- första gången -->
+                Ändringar sparade
+              </span>
+            </span>
+            <span ng-if=" ! updateCompanyForm.$pristine">Spara</span>
+            <span ng-if="status === 'submiting'">Sparar</span>
+
+          </md-button>
+        </div>
+
+      </form>
+
+    </md-card-content>
+  </md-card>
+</div>

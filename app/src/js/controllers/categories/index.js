@@ -9,6 +9,8 @@
     '$mdDialog',
     function($scope, categoriesFactory, $mdDialog) {
 
+      $scope.ObjectKeys = Object.keys;
+
       // loader active in the beginning
       $scope.fetchingData = true;
 

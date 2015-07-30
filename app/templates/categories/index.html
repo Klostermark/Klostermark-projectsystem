@@ -16,7 +16,7 @@
 
         <md-list-item ng-repeat-start="category in categories" ng-click="navigate('/settings/categories/' + category.$id)">
           <p>
-            {{ category.name }}
+            {{ category.name }} {{ category.tasks ? '(' + ObjectKeys(category.tasks).length + ')' : '' }}
           </p>
           <md-icon>mode_edit</md-icon>
         </md-list-item>

@@ -1,6 +1,6 @@
 angular
 .module('myApp')
-.factory('categoriesFactory', [
+.factory('companiesFactory', [
   'fbutil',
   '$firebaseArray',
   '$firebaseObject',
@@ -9,7 +9,7 @@ angular
 
 
     var
-      url = FBURL + '/categories',
+      url = FBURL + '/companies',
       ref = new Firebase(url),
       methods = {};
 
@@ -19,10 +19,6 @@ angular
 
     methods.get = function (id) {
       return $firebaseObject(ref.child(id));
-    }
-
-    methods.push = function (data) {
-      ref.push(data);
     }
 
     return methods;

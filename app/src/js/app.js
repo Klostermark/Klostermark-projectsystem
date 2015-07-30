@@ -10,6 +10,7 @@ var app = angular.module('myApp', [
     'myApp.login',
     'myApp.categories',
     'myApp.tasks',
+    'myApp.companies',
     'firebase', // temp
     'ngMaterial'   // temp
   ])

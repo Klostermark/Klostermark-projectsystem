@@ -13,6 +13,7 @@ var app = angular.module('myApp', [
     'myApp.login',
     'myApp.categories',
     'myApp.tasks',
+    'myApp.companies',
     'firebase', // temp
     'ngMaterial'   // temp
   ])
@@ -115,13 +116,16 @@ app.config(['$routeProvider', function($routeProvider) {
     controller: 'TaskCtrl',
   })
   .whenAuthenticated('/companies', {
-    templateUrl: 'templates/companies/list.html',
+    templateUrl: 'templates/companies/index.html',
+    controller: 'CompaniesCtrl'
   })
-  .whenAuthenticated('/companies/company', {
-    templateUrl: 'templates/companies/single.html',
+  .whenAuthenticated('/companies/:id', {
+    templateUrl: 'templates/companies/company.html',
+    controller: 'CompanyCtrl',
   })
-  .whenAuthenticated('/companies/createandedit', {
-    templateUrl: 'templates/companies/createandedit.html',
+  .whenAuthenticated('/companies/:id/edit', {
+    templateUrl: 'templates/companies/edit.html',
+    controller: 'EditCompanyCtrl'
   })
   .whenAuthenticated('/home', {
     templateUrl: 'templates/home.html',
@@ -313,6 +317,8 @@ app.config(['$routeProvider', function($routeProvider) {
     '$mdDialog',
     function($scope, categoriesFactory, $mdDialog) {
 
+      $scope.ObjectKeys = Object.keys;
+
       // loader active in the beginning
       $scope.fetchingData = true;
 
@@ -406,6 +412,247 @@ app.config(['$routeProvider', function($routeProvider) {
           .all()
           .$add({
             name: $scope.category.name
+          })
+          .then(function () {
+            // data submitted succesfully
+            $scope.submitting = false;
+            $mdDialog.hide();
+          });
+
+        } else {
+          // form not valid
+          $scope.invalid = true;
+        }
+
+      }
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/companies/company.js -------- */ 
+
+
+
+/* -------- app/src/js/controllers/companies/index.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  var app = angular.module('myApp.companies', ['ngRoute', 'firebase.utils', 'firebase', 'ngMaterial', 'ngMessages']);
+
+  app.controller('CompaniesCtrl', [
+    '$scope',
+    'companiesFactory',
+    '$mdDialog',
+    function($scope, companiesFactory, $mdDialog) {
+
+      // loader active in the beginning
+      $scope.fetchingData = true;
+
+      // fetch tasks
+      $scope.companies = companiesFactory.all();
+
+      // data loaded, kill spinner
+      $scope.companies.$loaded().then(function () {
+        $scope.fetchingData = false;
+      })
+
+      $scope.add = function () {
+        // call modal into existance
+        $mdDialog.show({
+          controller: 'NewCompanyCtrl',
+          templateUrl: 'templates/dialogs/new-company.html',
+          parent: angular.element(document.body)
+        })
+      }
+
+
+    }]);
+
+})(angular);
+
+(function (angular) {
+  "use strict";
+
+  angular
+  .module('myApp.companies')
+  .controller('CompanyCtrl', [
+    '$scope',
+    '$routeParams',
+    'joinForCompanyService',
+    function($scope, $routeParams, joinForCompanyService) {
+
+      var
+        self = this,
+        companyId = $routeParams.id;
+      
+      $scope.company = {};
+      
+      joinForCompanyService.watch(companyId, function (company) {
+        $scope.company = company;
+        !! $scope.$$phase || $scope.$apply();
+      })        
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/companies/edit-company.js -------- */ 
+
+
+(function (angular) {
+  "use strict";
+
+  angular
+  .module('myApp.companies')
+  .controller('EditCompanyCtrl', [
+    '$scope',
+    '$routeParams',
+    'companiesFactory',
+    'categoriesFactory',
+    function($scope, $routeParams, companiesFactory, categoriesFactory) {
+
+      var
+        self = this,
+        id = $routeParams.id;
+
+      $scope.status = 'pristine';
+      $scope.companyCategories = [];
+
+      // fetch data
+      $scope.company = companiesFactory.get(id);
+      $scope.categories = categoriesFactory.all();
+
+      
+      // watch for fully loaded data
+      $scope.company.$watch(function () {
+        self.fetched('company');
+      })
+      $scope.categories.$watch(function () {
+        self.fetched('categories');
+      })
+
+      // wait so all data is fetched
+      this.keepTrack = ['company', 'categories'];
+      this.fetched = function (data) {
+        var i = this.keepTrack.indexOf(data);
+
+        if (i > -1) {
+          this.keepTrack.splice(i, 1);
+        }
+
+        if (this.keepTrack.length === 0) {
+          $scope.fetched = true;
+          // display categories used by company
+          $scope.companyCategories = this.matchCompanyCategories();
+        }
+      }
+
+      $scope.removeChip = function (chip, form) {
+        if ($scope.company.categories) {
+          delete $scope.company.categories[chip.$id];
+        }
+
+        // make form dirty
+        form.$setDirty();
+      }
+
+      this.matchCompanyCategories = function () {
+        var
+          categoryId, i,
+          companyCategories = [];
+
+        for (categoryId in $scope.company.categories) {
+          for (i = 0; i < $scope.categories.length; i++) {
+            if (categoryId === $scope.categories[i].$id) {
+              companyCategories.push($scope.categories[i]);
+              break;
+            }
+          }
+        }
+
+        return companyCategories;
+      }
+
+      $scope.filterCategories = function (match) {
+        var
+          i,
+          categoriesArray = []
+
+        // filter
+        for (i = 0; i < $scope.categories.length; i++) {
+          if ($scope.categories[i].name.toLowerCase().indexOf(match.toLowerCase()) > -1) {
+            categoriesArray.push($scope.categories[i]);
+          }
+        }
+
+        return categoriesArray;
+      }
+
+      $scope.addCategory = function (category) {
+        // add category id to company categories
+        if (! $scope.company.categories) {
+          $scope.company.categories = {}
+        }
+
+        $scope.company.categories[category.$id] = true;
+      }
+
+      $scope.submit = function (form) {
+        var notificationId;
+        
+        if (form.$valid) {
+          $scope.status = 'submitting';
+
+          // update company
+          $scope.company.$save().then(function () {
+            $scope.status = 'submitted';
+            form.$setPristine();
+          });
+
+        } else {
+          $scope.status = 'invalid';
+        }
+
+      }
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/companies/new.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  angular
+  .module('myApp.companies')
+  .controller('NewCompanyCtrl', [
+    '$scope',
+    'companiesFactory',
+    '$mdDialog',
+    function($scope, companiesFactory, $mdDialog) {
+
+      $scope.subtmitting = false;
+      $scope.invalid = false; 
+
+      $scope.cancel = function () {
+        $mdDialog.cancel();
+      }
+
+      $scope.submit = function (form) {
+        if (form.$valid) {
+          $scope.invalid = false;
+          $scope.submitting = true;
+
+          companiesFactory
+          .all()
+          .$add({
+            name: $scope.company.name
           })
           .then(function () {
             // data submitted succesfully
@@ -735,14 +982,14 @@ app.controller('NavController', function($scope, $mdSidenav) {
 
       var
         self = this,
-        id = $routeParams.id;
+        taskId = $routeParams.id;
 
       $scope.status = 'pristine';
       $scope.routine = {};
       $scope.category = {};
 
       // fetch data
-      $scope.task = tasksFactory.get(id);
+      $scope.task = tasksFactory.get(taskId);
       $scope.categories = categoriesFactory.all();
 
       // watch for fully loaded data
@@ -790,35 +1037,63 @@ app.controller('NavController', function($scope, $mdSidenav) {
       }
 
       $scope.selectedCategory = function (category) {
-        // add to task
+        // add category to task
         $scope.task.category = category.$id;
+        // update $scope.category
+        $scope.category = category;
       }
 
       $scope.submit = function (form) {
-        var notificationId;
+        var i, notificationId, category, saveElement;
         
         if (form.$valid && $scope.task.category && $scope.task.category.length) {
           $scope.status = 'submitting';
 
-          // the routine has changed
+          // update categories
+          for (i = 0; i < $scope.categories.length; i++) {
+            category = $scope.categories[i];
+            saveElement = false;
+            
+            if (category.$id === $scope.category.$id) {
+              // add current task to chosen category
+              if ( ! category.tasks) {
+                category.tasks = {};
+              }
+              category.tasks[taskId] = true;
+
+              saveElement = true;
+            } else if (category.tasks && category.tasks[taskId]) {
+              // remove current task from every other category
+              delete category.tasks[taskId]
+              saveElement = true;
+            }
+
+            if (saveElement) {
+              $scope.categories.$save(i).catch(function (error) {
+                alert('Något gick fel... :(');
+                  console.log(error);
+              });
+            }
+          }
+
+          // save routine
           if ($scope.routine.changed) {
+            // the routine has changed
             notificationId = notificationsFactory.push({
-              taskId: id,
+              taskId: taskId,
               description: $scope.routine.description,
               timestamp: Firebase.ServerValue.TIMESTAMP
             });
 
             // add notification id to task
-            if ($scope.task.notifications) {
-              $scope.task.notifications.push(notificationId);
-            } else {
-              $scope.task.notifications = [notificationId];
+            if ( ! $scope.task.notifications) {
+              $scope.task.notifications = {};
             }
+            $scope.task.notifications[notificationId] = true;
           }
 
-          // save task
-          $scope.task
-          .$save().then(function () {
+          // update task
+          $scope.task.$save().then(function () {
             $scope.status = 'submitted';
             form.$setPristine();
           });
@@ -888,6 +1163,40 @@ angular
 
     var
       url = FBURL + '/categories',
+      ref = new Firebase(url),
+      methods = {};
+
+    methods.all = function () {
+      return $firebaseArray(ref);
+    }
+
+    methods.get = function (id) {
+      return $firebaseObject(ref.child(id));
+    }
+
+    methods.push = function (data) {
+      ref.push(data);
+    }
+
+    return methods;
+
+  }]);
+
+
+/* -------- app/src/js/services/factories/firebase/companies.js -------- */ 
+
+angular
+.module('myApp')
+.factory('companiesFactory', [
+  'fbutil',
+  '$firebaseArray',
+  '$firebaseObject',
+  'FBURL',
+  function(fbutil, $firebaseArray, $firebaseObject, FBURL) {
+
+
+    var
+      url = FBURL + '/companies',
       ref = new Firebase(url),
       methods = {};
 
@@ -1025,5 +1334,220 @@ angular
     }
 
     return methods;
+
+  }]);
+
+
+/* -------- app/src/js/services/serives/firebase/join-for-company.js -------- */ 
+
+angular
+.module('myApp')
+.service('joinForCompanyService', [
+  '$timeout',
+  'FBURL',
+  function($timeout, FBURL) {
+
+    var
+      executeCallback,
+      checkPending,
+      onCompanyChange,
+      onCategoryChange,
+      onTaskChange,
+      onNotificationChange,
+      self = this,
+      pending = {
+        requests: 0,
+        incr: function(where) {
+          //console.log(where, pending.requests, '++')
+          pending.requests++;
+        },
+        decr: function (where) {
+          // --pending.requests || executeCallback();
+
+          if (pending.requests > 0) {
+            //console.log(where, pending.requests, '--')
+
+            pending.requests--;
+
+            if (pending.requests === 0) {
+              executeCallback();
+            }
+          }
+        }
+      },
+      fburl = {
+        company: function(id) {return FBURL + '/companies/' + id},
+        category: function (id) {return FBURL + '/categories/' + id},
+        task: function (id) {return FBURL + '/tasks/' + id},
+        notification: function (id) {return FBURL + '/notifications/' + id},
+      },
+      fbref = {
+        company: null,
+        categories: {},
+        tasks: {},
+        notifications: {},
+      //   clear: function (refSets) {
+      //     var i, j, key, refSet;
+
+      //     // each set
+      //     for (i in refSets) {
+      //       key = refSets[i];
+      //       refSet = fbref[key];
+
+      //       if (refSet) {
+      //         for (j in refSet) {
+      //           //console.log(j)
+      //         }
+      //       }
+
+      //     }
+      //   }
+      },
+      company = {};
+
+    this.deferExe;
+
+    onCompanyChange = function (snap) {
+      company = snap.val();
+
+      // kill all fb refs bellow company
+      // fbref.clear(['categories', 'tasks', 'notifications']);
+      // fbref.categories = {};
+      // fbref.tasks = {};
+      // fbref.notifications = {};
+
+      if ( snap.child('categories').exists() ) {
+        snap.child('categories').forEach(function (category) {
+          var
+            categoryId = category.key(),
+            categoryUrl = fburl.category(categoryId);
+
+          // increment pending requests
+          pending.incr('category');
+
+          // ref
+          fbref.categories[categoryId] = new Firebase(categoryUrl);
+
+          // listener
+          fbref.categories[categoryId].once('value', function (snap) {
+            onCategoryChange(snap);
+
+            // decrement pending requests
+            pending.decr('category');
+          });
+        });
+      }
+    }
+
+    onCategoryChange = function (snap) {
+
+      //console.log('onCategoryChange', pending.requests)
+
+      var
+        categoryId = snap.key(),
+        categories = company.categories;
+
+      // kill all fb refs bellow categories
+      // fbref.clear(['tasks', 'notifications']);
+      // fbref.tasks = {};
+      // fbref.notifications = {};
+
+      categories[categoryId] = snap.val();
+
+      if ( snap.child('tasks').exists() ) {
+        snap.child('tasks').forEach(function (task) {
+          var
+            taskId = task.key(),
+            taskUrl = fburl.task(taskId);
+
+          // increment pending requests
+          pending.incr('taks');
+
+          // ref
+          fbref.tasks[taskId] = new Firebase(taskUrl);
+
+          // listener
+          fbref.tasks[taskId].once('value', function (snap) {
+            onTaskChange(snap, categories[categoryId])
+
+            // decrement pending requests
+            pending.decr('task');
+          });
+        })
+      }
+    }
+
+    onTaskChange = function (snap, category) {
+      //console.log('onTaskChange', pending.requests)
+      var
+        taskId = snap.key(),
+        tasks = category.tasks;
+
+      // kill all fb refs bellow task
+      // fbref.clear(['notifications']);
+      // fbref.notifications = {};
+
+      tasks[taskId] = snap.val();
+
+      if ( snap.child('notifications').exists() ) {
+        snap.child('notifications').forEach(function (notification) {
+          var
+            notificationId = notification.key(),
+            notificationUrl = fburl.notification(notificationId);
+
+          // increment pending requests
+          pending.incr('notification');
+
+          // ref
+          fbref.notifications[notificationId] = new Firebase(notificationUrl);
+
+          // listener
+          fbref.notifications[notificationId].once('value', function (snap) {
+            onNotificationChange(snap, tasks[taskId])
+            
+            // decrement pending requests
+            pending.decr('notification');
+          });
+        })
+      }
+    }
+
+    onNotificationChange = function (snap, task) {
+      //console.log('onNotificationChange', pending.requests)
+      var
+        notificationId = snap.key(),
+        notifications = task.notifications;
+
+      notifications[notificationId] = snap.val();
+    }
+
+    executeCallback = function () {
+      // defer the callback since there will be multiple callbacks otherwise
+      ! self.deferExe || $timeout.cancel(self.deferExe);
+
+      self.deferExe = $timeout(function () {
+        //console.log('exe', pending.requests)
+        self.callback(company);
+      });
+    }
+
+
+    checkPending = function () {
+      //console.log(pending.requests)
+      if (pending === 0) {
+        executeCallback();
+      }
+    }
+
+
+    this.watch = function (companyId, callback) {
+      this.callback = callback;
+
+      // fetch
+      fbref.company = new Firebase(fburl.company(companyId));
+
+      // initiate process
+      fbref.company.once('value', onCompanyChange);
+    }
 
   }]);

@@ -1,0 +1,39 @@
+<div class="container">
+  <md-card>
+    <md-content>
+
+      <div ng-if="fetchingData">
+        <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+        </md-progress-circular>
+        <p style="text-align:center">Laddar företag</p>
+      </div>
+
+      <p ng-show=" ! fetchingData && ! companies.length" style="text-align:center">
+        För tillfället finns inga företag.
+      </p>
+
+      <md-list ng-hide=" ! fetchingData && ! companies.length">
+
+        <md-list-item ng-repeat-start="company in companies" ng-click="navigate('/companies/' + company.$id)">
+          <p>
+            {{ company.name }}
+          </p>
+          <md-icon
+            class="md-secondary"
+            aria-label="Redigera företag"
+            ng-click="navigate('/companies/' + company.$id + '/edit')">
+            mode_edit
+          </md-icon>
+        </md-list-item>
+
+        <md-divider ng-repeat-end ng-if=" ! $last"></md-divider>
+
+      </md-list>
+
+    </md-content>
+  </md-card>
+</div>
+
+<md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Lägg till företag" ng-click="add()">
+  <md-icon>add</md-icon>
+</md-button>

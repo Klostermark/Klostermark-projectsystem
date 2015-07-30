@@ -13,14 +13,14 @@
 
       var
         self = this,
-        id = $routeParams.id;
+        taskId = $routeParams.id;
 
       $scope.status = 'pristine';
       $scope.routine = {};
       $scope.category = {};
 
       // fetch data
-      $scope.task = tasksFactory.get(id);
+      $scope.task = tasksFactory.get(taskId);
       $scope.categories = categoriesFactory.all();
 
       // watch for fully loaded data
@@ -68,35 +68,63 @@
       }
 
       $scope.selectedCategory = function (category) {
-        // add to task
+        // add category to task
         $scope.task.category = category.$id;
+        // update $scope.category
+        $scope.category = category;
       }
 
       $scope.submit = function (form) {
-        var notificationId;
+        var i, notificationId, category, saveElement;
         
         if (form.$valid && $scope.task.category && $scope.task.category.length) {
           $scope.status = 'submitting';
 
-          // the routine has changed
+          // update categories
+          for (i = 0; i < $scope.categories.length; i++) {
+            category = $scope.categories[i];
+            saveElement = false;
+            
+            if (category.$id === $scope.category.$id) {
+              // add current task to chosen category
+              if ( ! category.tasks) {
+                category.tasks = {};
+              }
+              category.tasks[taskId] = true;
+
+              saveElement = true;
+            } else if (category.tasks && category.tasks[taskId]) {
+              // remove current task from every other category
+              delete category.tasks[taskId]
+              saveElement = true;
+            }
+
+            if (saveElement) {
+              $scope.categories.$save(i).catch(function (error) {
+                alert('Något gick fel... :(');
+                  console.log(error);
+              });
+            }
+          }
+
+          // save routine
           if ($scope.routine.changed) {
+            // the routine has changed
             notificationId = notificationsFactory.push({
-              taskId: id,
+              taskId: taskId,
               description: $scope.routine.description,
               timestamp: Firebase.ServerValue.TIMESTAMP
             });
 
             // add notification id to task
-            if ($scope.task.notifications) {
-              $scope.task.notifications.push(notificationId);
-            } else {
-              $scope.task.notifications = [notificationId];
+            if ( ! $scope.task.notifications) {
+              $scope.task.notifications = {};
             }
+            $scope.task.notifications[notificationId] = true;
           }
 
-          // save task
-          $scope.task
-          .$save().then(function () {
+          // update task
+          $scope.task.$save().then(function () {
             $scope.status = 'submitted';
             form.$setPristine();
           });

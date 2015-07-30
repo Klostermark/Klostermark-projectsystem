@@ -25,13 +25,16 @@ app.config(['$routeProvider', function($routeProvider) {
     controller: 'TaskCtrl',
   })
   .whenAuthenticated('/companies', {
-    templateUrl: 'templates/companies/list.html',
+    templateUrl: 'templates/companies/index.html',
+    controller: 'CompaniesCtrl'
   })
-  .whenAuthenticated('/companies/company', {
-    templateUrl: 'templates/companies/single.html',
+  .whenAuthenticated('/companies/:id', {
+    templateUrl: 'templates/companies/company.html',
+    controller: 'CompanyCtrl',
   })
-  .whenAuthenticated('/companies/createandedit', {
-    templateUrl: 'templates/companies/createandedit.html',
+  .whenAuthenticated('/companies/:id/edit', {
+    templateUrl: 'templates/companies/edit.html',
+    controller: 'EditCompanyCtrl'
   })
   .whenAuthenticated('/home', {
     templateUrl: 'templates/home.html',

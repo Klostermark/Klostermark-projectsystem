@@ -1,0 +1,37 @@
+<md-dialog>
+  <form name="createCompanyForm" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Lägg till nytt företag</h2>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+
+    <p>
+      Här lägger du till en kategori. Vad händer sen?
+    </p>
+
+    <md-input-container>
+      <label>Företagsnamn</label>
+      <input name="name" ng-model="company.name" required>
+      <div ng-messages="createCompanyForm.name.$error" ng-show="createCompanyForm.name.$touched || invalid">
+        <div ng-message="required">Du måste ange att namn.</div>
+      </div>
+    </md-input-container>
+
+    </md-dialog-content>
+    <div class="md-actions" layout="row">
+      <span flex>
+        <span ng-show="invalid">
+          Formuläret var inte korrekt ifyllt.
+        </span>
+      </span>
+      <md-button ng-click="cancel()" class="md-primary">
+        Avbryt
+      </md-button>
+      <md-button ng-click="submit(createCompanyForm)" class="md-primary" ng-disabled="submitting">
+        Lägg till
+      </md-button>
+    </div>
+  </form>
+</md-dialog>
