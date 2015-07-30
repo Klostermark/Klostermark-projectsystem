@@ -482,18 +482,84 @@ app.config(['$routeProvider', function($routeProvider) {
     '$scope',
     '$routeParams',
     'joinForCompanyService',
-    function($scope, $routeParams, joinForCompanyService) {
+    'activitiesFactory',
+    '$mdDialog',
+    '$mdToast',
+    function($scope, $routeParams, joinForCompanyService, activitiesFactory, $mdDialog, $mdToast) {
 
       var
         self = this,
         companyId = $routeParams.id;
       
       $scope.company = {};
+      $scope.activities = {};
+      $scope.dateSelected = false;
+      $scope.loadingActivities = true;
+
       
       joinForCompanyService.watch(companyId, function (company) {
         $scope.company = company;
         !! $scope.$$phase || $scope.$apply();
-      })        
+      });
+
+      $scope.activityChange = function (taskId) {
+        // remove falsy activity tasks
+        $scope.activities[taskId] || delete $scope.activities[taskId];
+
+        // sync
+        $scope.activities.$save().then(function () {
+          $mdToast.show({
+            controller: 'toastCtrl',
+            templateUrl: 'templates/toasts/activity-synced.html',
+            hideDelay: 2000,
+            position: 'top right fit'
+          });
+        });
+      }
+
+      $scope.loadActivities = function (date) {
+        var time;
+        if (date) {
+          // user has selected a date
+          time = new Date(date).getTime()
+
+          $scope.activities = activitiesFactory.get([time, companyId]);
+
+          // disable checkboxes intill loaded
+          $scope.loadingActivities = true;
+
+          $scope.activities.$loaded().then(function (ref) {
+            // show data
+            $scope.dateSelected = true;
+
+            // make checkboxes available
+            $scope.loadingActivities = false;
+          })
+        } else {
+          // hide data
+          $scope.dateSelected = false;
+        }
+      }
+
+      $scope.showDescription = function (task) {
+        $mdDialog.show(
+          $mdDialog.alert()
+            .title('Momentbeskrivning')
+            .content(task.description)
+            .ariaLabel('Momentbeskrivning')
+            .ok('Förstått')
+        );
+      }
+
+      $scope.showNotification = function (task) {
+        $mdDialog.show(
+          $mdDialog.alert()
+            .title('Rutinförändring')
+            .content(task.notification.description)
+            .ariaLabel('Rutinförändring')
+            .ok('Förstått')
+        );
+      }   
 
     }]);
 
@@ -1109,6 +1175,26 @@ app.controller('NavController', function($scope, $mdSidenav) {
 })(angular);
 
 
+/* -------- app/src/js/controllers/toast.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  angular.module('myApp')
+  .controller('toastCtrl', [
+    '$scope',
+    '$mdToast',
+    function($scope, $mdToast) {
+
+      $scope.closeToast = function() {
+        $mdToast.hide();
+      };
+
+    }]);
+
+})(angular);
+
+
 /* -------- app/src/js/directives/appversion-directive.js -------- */ 
 
 'use strict';
@@ -1138,6 +1224,48 @@ angular.module('myApp')
       return items.slice().reverse();
     };
   });
+
+
+/* -------- app/src/js/services/factories/firebase/activities.js -------- */ 
+
+angular
+.module('myApp')
+.factory('activitiesFactory', [
+  'fbutil',
+  '$firebaseArray',
+  '$firebaseObject',
+  'FBURL',
+  function(fbutil, $firebaseArray, $firebaseObject, FBURL) {
+
+
+    var
+      url = FBURL + '/activities',
+      ref = new Firebase(url),
+      methods = {};
+
+    methods.all = function () {
+      return $firebaseArray(ref);
+    }
+
+    methods.get = function (ids) {
+      var i, childRef, id;
+
+      if (! Array.isArray(ids)) {
+        ids = [ids];
+      }
+
+      childRef = ref;
+      for (i in ids) {
+        id = ids[i];
+        childRef = childRef.child(id);
+      }
+
+      return $firebaseObject(childRef);
+    }
+
+    return methods;
+
+  }]);
 
 
 /* -------- app/src/js/services/factories/firebase/auth.js -------- */ 
@@ -1358,14 +1486,12 @@ angular
       pending = {
         requests: 0,
         incr: function(where) {
-          //console.log(where, pending.requests, '++')
+          // console.log(where, pending.requests, '++')
           pending.requests++;
         },
         decr: function (where) {
-          // --pending.requests || executeCallback();
-
           if (pending.requests > 0) {
-            //console.log(where, pending.requests, '--')
+            // console.log(where, pending.requests, '--')
 
             pending.requests--;
 
@@ -1480,6 +1606,7 @@ angular
     onTaskChange = function (snap, category) {
       //console.log('onTaskChange', pending.requests)
       var
+        notifications, newestNotificaionId, notificationUrl,
         taskId = snap.key(),
         tasks = category.tasks;
 
@@ -1490,35 +1617,41 @@ angular
       tasks[taskId] = snap.val();
 
       if ( snap.child('notifications').exists() ) {
-        snap.child('notifications').forEach(function (notification) {
-          var
-            notificationId = notification.key(),
-            notificationUrl = fburl.notification(notificationId);
 
-          // increment pending requests
-          pending.incr('notification');
+        // get newest (= last) child
+        notifications = snap.child('notifications').val();
+        newestNotificaionId = Object.keys(notifications).slice(-1)[0];
+        notificationUrl = fburl.notification(newestNotificaionId);
 
-          // ref
-          fbref.notifications[notificationId] = new Firebase(notificationUrl);
+        // increment pending requests
+        pending.incr('notification');
 
-          // listener
-          fbref.notifications[notificationId].once('value', function (snap) {
-            onNotificationChange(snap, tasks[taskId])
-            
-            // decrement pending requests
-            pending.decr('notification');
-          });
-        })
+        // ref
+        fbref.notifications[newestNotificaionId] = new Firebase(notificationUrl);
+
+        // query
+        fbref.notifications[newestNotificaionId].once('value', function (snap) {
+          onNotificationChange(snap, tasks[taskId])
+          
+          // decrement pending requests
+          pending.decr('notification');
+        });
+
       }
     }
 
     onNotificationChange = function (snap, task) {
       //console.log('onNotificationChange', pending.requests)
       var
-        notificationId = snap.key(),
-        notifications = task.notifications;
+        timestamp = snap.child('timestamp').val(),
+        now = new Date().getTime();
 
-      notifications[notificationId] = snap.val();
+      // find out if notification is new enough to display
+      // 60 days
+      if (timestamp > now - 60*24*60*60*1000)
+      {
+        task.notification = snap.val();
+      }
     }
 
     executeCallback = function () {
@@ -1546,8 +1679,16 @@ angular
       // fetch
       fbref.company = new Firebase(fburl.company(companyId));
 
+      // increment pending requests
+      pending.incr('company');
+
       // initiate process
-      fbref.company.once('value', onCompanyChange);
+      fbref.company.once('value', function (snap) {
+        onCompanyChange(snap);
+
+        // decrement pending requests
+        pending.decr('company');
+      });
     }
 
   }]);

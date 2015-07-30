@@ -5,37 +5,65 @@
         <md-content>
           <div class="container">
 
-            Anton, ska "message" ikonen trigga en popup med momentbeskrivningen?
+            <div ng-if=" ! company.name">
+              <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+              </md-progress-circular>
+              <p style="text-align:center">Laddar Företag</p>
+            </div>
 
-            <p>[[MÅNADSDROPDOWN]]</p>
+            <div ng-if="company.name">
 
-            <p ng-if=" ! company.categories">För närvarande finns inga moment kopplde till denna kund</p>
+              <p ng-if=" ! company.categories">För närvarande finns inga moment kopplde till denna kund.</p>
 
-            <md-card ng-if="company.categories" ng-repeat="category in company.categories">
-              {{ category.name }}
-              <md-list ng-if="category.tasks">
+              <form name="activitiesForm" ng-if="company.categories">
 
-                <md-list-item ng-repeat-start="task in category.tasks">
-                  <md-checkbox></md-checkbox>
-                  <p>{{ task.name }}</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon> <!-- task.description -->
-                </md-list-item>
-                <md-divider ng-if=" ! $last" ng-repeat-end></md-divider>
+                <md-input-container>
+                  <label>Månad</label>
+                  <input type="month" name="date" ng-model="month" ng-change="loadActivities(month)" required>
+                  <div ng-messages="activitiesForm.date.$error">
+                    <div ng-message="required">Var god välj en månad.</div>
+                  </div>
+                </md-input-container>
 
-                <!-- <md-list-item>
-                  <md-checkbox></md-checkbox>
-                  <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary">message</md-icon>
-                </md-list-item>
-                <md-divider></md-divider>
-                <md-list-item>
-                  <md-checkbox></md-checkbox>
-                  <p>Data Usage</p>
-                  <md-icon ng-click="navigateTo()" class="md-secondary changed">new_releases<md-tooltip>Här visas den senaste rutinändringen. Måste bara se till att hämta den senaste och kolla så den inte är äldre än 60 dagar...</md-tooltip></md-icon>
-                </md-list-item> -->
+                <md-card ng-if="dateSelected" ng-repeat="category in company.categories">
+                  {{ category.name }}
+                  <md-list ng-if="category.tasks">
+                    <md-list-item ng-repeat-start="(taskId, task) in category.tasks">
+                      <md-checkbox ng-model="activities[taskId]" ng-change="activityChange(taskId)" ng-hide="loadingActivities">
+                      </md-checkbox>
+                      <p>{{ task.name }}</p>
+                      <!-- description -->
+                      <md-icon
+                        ng-click="showDescription(task)"
+                        class="md-secondary"
+                        aria-label="Visa momentbeskrivning"
+                      >
+                        message
+                         <md-tooltip>
+                          Visa momentbeskrivning
+                        </md-tooltip>
+                      </md-icon>
+                      <!-- notification -->
+                      <md-icon
+                        ng-if="task.notification"
+                        ng-click="showNotification(task)"
+                        class="md-secondary changed"
+                        aria-label="Visa rutinförändring för detta moment"
+                      >
+                        new_releases
+                         <md-tooltip>
+                          Visa rutinförändring för detta moment
+                        </md-tooltip>
+                      </md-icon>
+                    </md-list-item>
+                    <md-divider ng-if=" ! $last" ng-repeat-end></md-divider>
 
-              </md-list>
-            </md-card>
+                  </md-list>
+                </md-card>
+
+              </form>
+
+            </div>
 
           </div>
         </md-content>

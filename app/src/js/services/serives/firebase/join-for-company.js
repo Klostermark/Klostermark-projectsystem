@@ -16,14 +16,12 @@ angular
       pending = {
         requests: 0,
         incr: function(where) {
-          //console.log(where, pending.requests, '++')
+          // console.log(where, pending.requests, '++')
           pending.requests++;
         },
         decr: function (where) {
-          // --pending.requests || executeCallback();
-
           if (pending.requests > 0) {
-            //console.log(where, pending.requests, '--')
+            // console.log(where, pending.requests, '--')
 
             pending.requests--;
 
@@ -138,6 +136,7 @@ angular
     onTaskChange = function (snap, category) {
       //console.log('onTaskChange', pending.requests)
       var
+        notifications, newestNotificaionId, notificationUrl,
         taskId = snap.key(),
         tasks = category.tasks;
 
@@ -148,35 +147,41 @@ angular
       tasks[taskId] = snap.val();
 
       if ( snap.child('notifications').exists() ) {
-        snap.child('notifications').forEach(function (notification) {
-          var
-            notificationId = notification.key(),
-            notificationUrl = fburl.notification(notificationId);
 
-          // increment pending requests
-          pending.incr('notification');
+        // get newest (= last) child
+        notifications = snap.child('notifications').val();
+        newestNotificaionId = Object.keys(notifications).slice(-1)[0];
+        notificationUrl = fburl.notification(newestNotificaionId);
 
-          // ref
-          fbref.notifications[notificationId] = new Firebase(notificationUrl);
+        // increment pending requests
+        pending.incr('notification');
 
-          // listener
-          fbref.notifications[notificationId].once('value', function (snap) {
-            onNotificationChange(snap, tasks[taskId])
-            
-            // decrement pending requests
-            pending.decr('notification');
-          });
-        })
+        // ref
+        fbref.notifications[newestNotificaionId] = new Firebase(notificationUrl);
+
+        // query
+        fbref.notifications[newestNotificaionId].once('value', function (snap) {
+          onNotificationChange(snap, tasks[taskId])
+          
+          // decrement pending requests
+          pending.decr('notification');
+        });
+
       }
     }
 
     onNotificationChange = function (snap, task) {
       //console.log('onNotificationChange', pending.requests)
       var
-        notificationId = snap.key(),
-        notifications = task.notifications;
+        timestamp = snap.child('timestamp').val(),
+        now = new Date().getTime();
 
-      notifications[notificationId] = snap.val();
+      // find out if notification is new enough to display
+      // 60 days
+      if (timestamp > now - 60*24*60*60*1000)
+      {
+        task.notification = snap.val();
+      }
     }
 
     executeCallback = function () {
@@ -204,8 +209,16 @@ angular
       // fetch
       fbref.company = new Firebase(fburl.company(companyId));
 
+      // increment pending requests
+      pending.incr('company');
+
       // initiate process
-      fbref.company.once('value', onCompanyChange);
+      fbref.company.once('value', function (snap) {
+        onCompanyChange(snap);
+
+        // decrement pending requests
+        pending.decr('company');
+      });
     }
 
   }]);
