@@ -1,0 +1,22 @@
+<div class="container margin-top">
+  <md-card>
+    <md-toolbar class="md-theme-light">
+      <h2 class="md-toolbar-tools">
+      <md-select ng-model="user" md-on-open="loadUsers()" style="min-width: 200px;">
+        <md-select-label>Filtrera fram:</md-select-label>
+        <md-option ng-value="user" ng-repeat="user in users">Kategori #1</md-option>
+      </md-select>
+      </h2>
+    </md-toolbar>
+    <md-content>
+      <md-subheader class="md-accent">Ej slutförda</md-subheader>
+      <md-list>
+        <md-list-item>Pelles bygg</md-list-item>
+      </md-list>
+      <md-subheader class="md-accent">Slutförda</md-subheader>
+      <md-list>
+        <md-list-item>Pelles bygg</md-list-item>
+      </md-list>
+    </md-content>
+  </md-card>
+</div>

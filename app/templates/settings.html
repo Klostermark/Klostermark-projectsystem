@@ -8,8 +8,8 @@
             Moment utgör basen i det aktiviteter projektstödet knyter till kundernas företag. Ett moment kan vara till exempel "Lämna in bokföringsunderlag". Varje moment kan ha obegränsat med undermoment, eller steg om man så vill kalla det.
           </p>
     </md-card-content>
-    <div class="md-actions" layout="row" layout-align="end center">
-          <md-button>Redigera</md-button>
+    <div class="md-actions" layout="row" layout-align="end end" flex>
+          <md-button ng-click="navigate('/settings/categories')">Redigera</md-button>
     </div>
   </md-card>
 
@@ -22,8 +22,8 @@
             Undermomenten utgör steg som ingår i varje huvudmoment.
           </p>
     </md-card-content>
-    <div class="md-actions" layout="row" layout-align="end center">
-          <md-button>Redigera</md-button>
+    <div class="md-actions" layout="row" layout-align="end end" flex>
+          <md-button ng-click="navigate('/settings/tasks')">Redigera</md-button>
     </div>
   </md-card>
 </section>

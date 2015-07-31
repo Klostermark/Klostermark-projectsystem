@@ -16,12 +16,12 @@
 <body ng-cloak ng-app="myApp" ng-controller="mainCtrl">
 
   <md-sidenav md-component-id="left" class="md-sidenav-left">
-    <md-list-item ng-click="navigateTo()">
+    <md-list-item ng-click="navigate('/companies')">
       <md-icon>cached</md-icon>
       <p>Kunder</p>
     </md-list-item>
     <md-divider></md-divider>
-    <md-list-item ng-click="navigateTo()">
+    <md-list-item ng-click="navigate('/settings')">
       <md-icon>settings</md-icon>
       <p>Systeminställningar</p>
     </md-list-item>
@@ -55,13 +55,13 @@
                 </md-button>
             </md-menu-item>
             <md-menu-divider></md-menu-divider>
-            <md-menu-item>
+            <md-menu-item ng-click="navigate('/account')">
               <md-button>
-                <md-icon ng-click="go('/account')">settings</md-icon>
+                <md-icon>settings</md-icon>
                 Kontoinställningar
               </md-button>
             </md-menu-item>
-            <md-menu-item>
+            <md-menu-item ng-click="logout()">
               <md-button>
                 <md-icon>exit_to_app</md-icon>
                 Logga ut

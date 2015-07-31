@@ -3,9 +3,9 @@
     <md-tabs md-center-tabs="false" md-dynamic-height md-border-bottom class="md-default-theme md-primary md-hue-1">
       <md-tab label="Moment">
         <md-content>
-          <div class="container">
+          <div class="container margin-top">
 
-            <div ng-if=" ! company.name">
+            <div ng-if=" ! company.name" class="spinner">
               <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
               </md-progress-circular>
               <p style="text-align:center">Laddar Företag</p>
@@ -17,55 +17,55 @@
 
               <form name="activitiesForm" ng-if="company.categories">
 
-                <md-input-container>
+                <md-input-container class="month-selector">
                   <label>Månad</label>
                   <input type="month" name="date" ng-model="month" ng-change="loadActivities(month)" required>
                   <div ng-messages="activitiesForm.date.$error">
                     <div ng-message="required">Var god välj en månad.</div>
                   </div>
                 </md-input-container>
+                <div ng-repeat="category in company.categories" ng-if="dateSelected">
+                  <span class="category-title">{{ category.name }}</span>
+                  <md-card>
+                    <md-list ng-if="category.tasks">
+                      <md-list-item ng-repeat-start="(taskId, task) in category.tasks">
+                        <md-checkbox ng-disabled="true" ng-if="loadingActivities"></md-checkbox>
+                        <md-checkbox
+                          ng-model="activities[taskId]"
+                          aria-label="Markera som avklarad"
+                          ng-change="activityChange(taskId)"
+                          ng-if=" ! loadingActivities"
+                        ></md-checkbox>
+                        <p>{{ task.name }}</p>
+                        <!-- description -->
+                        <md-icon
+                          ng-click="showDescription(task)"
+                          class="md-secondary"
+                          aria-label="Visa momentbeskrivning"
+                        >
+                          message
+                           <md-tooltip>
+                            Visa momentbeskrivning
+                          </md-tooltip>
+                        </md-icon>
+                        <!-- notification -->
+                        <md-icon
+                          ng-if="task.notification"
+                          ng-click="showNotification(task)"
+                          class="md-secondary changed"
+                          aria-label="Visa rutinförändring för detta moment"
+                        >
+                          new_releases
+                           <md-tooltip>
+                            Visa rutinförändring för detta moment
+                          </md-tooltip>
+                        </md-icon>
+                      </md-list-item>
+                      <md-divider ng-if=" ! $last" ng-repeat-end></md-divider>
 
-                <md-card ng-if="dateSelected" ng-repeat="category in company.categories">
-                  {{ category.name }}
-                  <md-list ng-if="category.tasks">
-                    <md-list-item ng-repeat-start="(taskId, task) in category.tasks">
-                      <md-checkbox ng-disabled="true" ng-if="loadingActivities"></md-checkbox>
-                      <md-checkbox
-                        ng-model="activities[taskId]"
-                        aria-label="Markera som avklarad"
-                        ng-change="activityChange(taskId)"
-                        ng-if=" ! loadingActivities"
-                      ></md-checkbox>
-                      <p>{{ task.name }}</p>
-                      <!-- description -->
-                      <md-icon
-                        ng-click="showDescription(task)"
-                        class="md-secondary"
-                        aria-label="Visa momentbeskrivning"
-                      >
-                        message
-                         <md-tooltip>
-                          Visa momentbeskrivning
-                        </md-tooltip>
-                      </md-icon>
-                      <!-- notification -->
-                      <md-icon
-                        ng-if="task.notification"
-                        ng-click="showNotification(task)"
-                        class="md-secondary changed"
-                        aria-label="Visa rutinförändring för detta moment"
-                      >
-                        new_releases
-                         <md-tooltip>
-                          Visa rutinförändring för detta moment
-                        </md-tooltip>
-                      </md-icon>
-                    </md-list-item>
-                    <md-divider ng-if=" ! $last" ng-repeat-end></md-divider>
-
-                  </md-list>
-                </md-card>
-
+                    </md-list>
+                  </md-card>
+                </div>
               </form>
 
             </div>

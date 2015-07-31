@@ -96,6 +96,9 @@ app.config(['$routeProvider', function($routeProvider) {
     templateUrl: 'templates/account.html',
     controller: 'AccountCtrl'
   })
+  .whenAuthenticated('/reports', {
+    templateUrl: 'templates/reports.html',
+  })
   .whenAuthenticated('/settings', {
     templateUrl: 'templates/settings.html',
   })
