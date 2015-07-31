@@ -29,8 +29,13 @@
                   {{ category.name }}
                   <md-list ng-if="category.tasks">
                     <md-list-item ng-repeat-start="(taskId, task) in category.tasks">
-                      <md-checkbox ng-model="activities[taskId]" ng-change="activityChange(taskId)" ng-hide="loadingActivities">
-                      </md-checkbox>
+                      <md-checkbox ng-disabled="true" ng-if="loadingActivities"></md-checkbox>
+                      <md-checkbox
+                        ng-model="activities[taskId]"
+                        aria-label="Markera som avklarad"
+                        ng-change="activityChange(taskId)"
+                        ng-if=" ! loadingActivities"
+                      ></md-checkbox>
                       <p>{{ task.name }}</p>
                       <!-- description -->
                       <md-icon
