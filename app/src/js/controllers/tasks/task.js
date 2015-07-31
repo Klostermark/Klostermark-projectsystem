@@ -6,10 +6,13 @@
   .controller('TaskCtrl', [
     '$scope',
     '$routeParams',
+    '$location',
     'tasksFactory',
     'notificationsFactory',
     'categoriesFactory',
-    function($scope, $routeParams, tasksFactory, notificationsFactory, categoriesFactory) {
+    'confirmFactory',
+    'deleteTaskFactory',
+    function($scope, $routeParams, $location, tasksFactory, notificationsFactory, categoriesFactory, confirmFactory, deleteTaskFactory) {
 
       var
         self = this,
@@ -68,10 +71,13 @@
       }
 
       $scope.selectedCategory = function (category) {
-        // add category to task
-        $scope.task.category = category.$id;
-        // update $scope.category
-        $scope.category = category;
+        // condition needed when deleting task
+        if (category) {
+          // add category to task
+          $scope.task.category = category.$id;
+          // update $scope.category
+          $scope.category = category;
+        }
       }
 
       $scope.submit = function (form) {
@@ -133,6 +139,17 @@
           $scope.status = 'invalid';
         }
 
+      }
+
+      $scope.delete = function () {
+        confirmFactory({
+          message: 'Är du säker på att du vill radera detta moment?',
+          query: function () {
+            return deleteTaskFactory(taskId);
+          }
+        }).then(function () {
+          $location.path('settings/tasks')
+        });
       }
 
     }]);

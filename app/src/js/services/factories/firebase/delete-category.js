@@ -1,11 +1,10 @@
 angular
 .module('myApp')
 .factory('deleteCategoryFactory', [
-  '$timeout',
   '$q',
   'AwaitFactory',
   'FBURL',
-  function($timeout, $q, AwaitFactory, FBURL) {
+  function($q, AwaitFactory, FBURL) {
 
     var deleteCategory, removeTasksReference, removeCompanyReference, mainAwait, deffered;
 
