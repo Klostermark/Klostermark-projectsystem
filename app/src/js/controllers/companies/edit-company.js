@@ -18,6 +18,7 @@ require('controllers/companies/index.js');
 
       $scope.status = 'pristine';
       $scope.companyCategories = [];
+      $scope.banks = ['SEB', 'Handelsbanken', 'Nordea', 'Swedbank', 'Annan'];
 
       // fetch data
       $scope.company = companiesFactory.get(id);
@@ -45,6 +46,10 @@ require('controllers/companies/index.js');
           $scope.fetched = true;
           // display categories used by company
           $scope.companyCategories = this.matchCompanyCategories();
+
+          // fix date issue
+          ! $scope.company.brokenFiscalYear || self.setDate('closingMonth', $scope.company.closingMonth)
+          ! $scope.company.brokenFiscalYear || self.setDate('firstClosing', $scope.company.firstClosing)
         }
       }
 
@@ -98,8 +103,18 @@ require('controllers/companies/index.js');
         $scope.company.categories[category.$id] = true;
       }
 
+      $scope.setTimestamp = function (key, date) {
+        // convert to timestamp
+        $scope.company[key] = new Date(date).getTime();
+      }
+
+      this.setDate = function (key, timestamp) {
+        $scope[key] = new Date(timestamp);
+      }
+
       $scope.submit = function (form) {
         var notificationId;
+
         
         if (form.$valid) {
           $scope.status = 'submitting';

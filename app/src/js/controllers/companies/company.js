@@ -48,7 +48,7 @@ require('controllers/companies/index.js');
         var time;
         if (date) {
           // user has selected a date
-          time = new Date(date).getTime()
+          time = new Date(date).getTime();
 
           $scope.activities = activitiesFactory.get([time, companyId]);
 

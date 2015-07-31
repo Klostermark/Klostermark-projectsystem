@@ -25,6 +25,7 @@
           md-require-match
         >
           <md-autocomplete
+            md-autofocus="false"
             md-selected-item="category"
             md-search-text="match"
             md-search-text-change="null"
@@ -49,8 +50,74 @@
           >
             <md-icon md-svg-icon="md-close"></md-icon>
           </button>
-
         </md-chips>
+
+        <md-input-container>
+          <label>Kundansvarig</label>
+          <input type="text" ng-model="company.accountManager">
+        </md-input-container>
+
+        <md-input-container>
+          <label>Rapporteringsmall</label>
+          <input type="text" ng-model="company.submissionTemplate">
+        </md-input-container>
+
+        <md-select placeholder="Bank" ng-model="company.bank">
+          <md-option ng-repeat="bank in banks" value="{{bank}}">{{bank}}</md-option>
+        </md-select>
+
+        <md-checkbox ng-model="company.brokenFiscalYear">
+          Brutet räkneskapsår
+        </md-checkbox>
+
+        <md-input-container ng-if="company.brokenFiscalYear">
+          <label>Bokslutsmånad</label>
+          <input type="date" ng-model="closingMonth" ng-change="setTimestamp('closingMonth', closingMonth)">
+        </md-input-container>
+
+        <md-checkbox ng-model="company.extendedFiscalYear">
+          Förlängt räknaskapsår
+        </md-checkbox>
+
+        <md-input-container ng-if="company.extendedFiscalYear">
+          <label>Första bokslut</label>
+          <input type="date" ng-model="firstClosing" ng-change="setTimestamp('firstClosing', firstClosing)">
+        </md-input-container>
+
+        <md-select placeholder="Redovisningsmetod" ng-model="company.accountingMethod">
+          <md-option ng-repeat="method in ['Fakturametoden', 'Bokslutsmetoden']" value="{{method}}">{{method}}</md-option>
+        </md-select>
+
+        <md-select placeholder="Momsperiod: Månadsmoms" ng-model="company.monthlyVAT">
+          <md-option ng-repeat="option in ['Månadsvis', 'Kvartalsvis', 'Årsvis']" value="{{option}}">{{option}}</md-option>
+        </md-select>
+
+        <md-checkbox ng-model="company.employer">
+          Arbetsgivare
+        </md-checkbox>
+
+        <md-checkbox ng-model="company.EUSales">
+          EU-försäljning
+        </md-checkbox>
+
+        <md-input-container>
+          <label>Kontaktperson</label>
+          <input type="text" ng-model="company.contactPerson">
+        </md-input-container>
+
+        <md-input-container>
+          <label>Telefonnummer</label>
+          <input type="text" ng-model="company.contactPhone">
+        </md-input-container>
+
+        <md-checkbox ng-model="company.wages">
+          Löner
+        </md-checkbox>
+
+        <md-input-container>
+          <label>Faktureringsadress</label>
+          <input type="text" ng-model="company.invoiceAddress">
+        </md-input-container>
 
         <div class="md-actions" layout="row" layout-align="end center">
           <span ng-show="status === 'invalid'">
