@@ -339,7 +339,7 @@ app.config(['$routeProvider', function($routeProvider) {
           controller: 'NewCategoryCtrl',
           templateUrl: 'templates/dialogs/new-category.html',
           parent: angular.element(document.body)
-        })
+        });
       }
 
 
@@ -355,17 +355,22 @@ app.config(['$routeProvider', function($routeProvider) {
   .controller('CategoryCtrl', [
     '$scope',
     '$routeParams',
+    '$location',
     'categoriesFactory',
-    function($scope, $routeParams, categoriesFactory) {
+    'deleteCategoryFactory',
+    'confirmFactory',
+    '$mdDialog',
+    function($scope, $routeParams, $location, categoriesFactory, deleteCategoryFactory, confirmFactory, $mdDialog) {
 
-      var id = $routeParams.id;
+      var 
+        deleteCategory,
+        categoryId = $routeParams.id;
 
       $scope.status = 'pristine';
 
-      $scope.category = categoriesFactory.get(id);
+      $scope.category = categoriesFactory.get(categoryId);
 
       $scope.submit = function (form) {
-        
         if (form.$valid) {
           $scope.status = 'submitting';
 
@@ -378,7 +383,17 @@ app.config(['$routeProvider', function($routeProvider) {
         } else {
           $scope.status = 'invalid';
         }
+      }
 
+      $scope.delete = function () {
+        confirmFactory({
+          message: 'Är du säker på att du vill radera denna kategori?',
+          query: function () {
+            return deleteCategoryFactory(categoryId);
+          }
+        }).then(function () {
+          $location.path('settings/categories')
+        });
       }
 
     }]);
@@ -749,6 +764,46 @@ app.config(['$routeProvider', function($routeProvider) {
           $scope.invalid = true;
         }
 
+      }
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/confirm.js -------- */ 
+
+(function (angular) {
+  "use strict";
+  
+  angular.module('myApp')
+  .controller('ConfirmCtrl', [
+    '$scope',
+    '$mdDialog',
+    'message',
+    'query',
+    function($scope, $mdDialog, message, query) {
+
+      $scope.message = message;
+      $scope.status = 'pristine';
+
+      $scope.confirm = function () {
+
+        $scope.status = 'submitting';
+
+        query().then(function (res) {
+          // success
+          // close dialog
+          $mdDialog.hide();
+        }, function (res) {
+          // error
+        }, function (res) {
+          // notify
+        });
+      }
+
+      $scope.cancel = function () {
+        $mdDialog.cancel();
       }
 
     }]);
@@ -1244,6 +1299,74 @@ angular.module('myApp')
   });
 
 
+/* -------- app/src/js/services/factories/await.js -------- */ 
+
+angular
+.module('myApp')
+.factory('AwaitFactory', [function() {
+
+    return function (resolve) {
+
+      var await = {
+        resolved: false,
+        val: 0,
+        incr: function (where) {
+          await.val++;
+          // console.log('+', where, await.val)
+        },
+        decr: function (where) {
+          await.val--;
+          // console.log('-', where, await.val)
+
+          if (await.val === 0) {
+            await.resolved = true;
+            await.resolve();
+          }
+        },
+        tryResolve: function () {
+          if ( ! await.resolved && await.val === 0) {
+            await.resolved = true;
+            await.resolve();
+          }
+        },
+        resolve: function () {
+          // console.log('await resolved')
+          resolve();
+        }
+      };
+
+      return await;
+
+    }
+
+  }]);
+
+
+/* -------- app/src/js/services/factories/confirm.js -------- */ 
+
+angular
+.module('myApp')
+.factory('confirmFactory', [
+  '$mdDialog',
+  function($mdDialog) {
+
+    return function (data) {
+
+      return $mdDialog.show({
+        templateUrl: 'templates/dialogs/confirm.html',
+        parent: angular.element(document.body),
+        locals: {
+          message: data.message,
+          query: data.query,
+        },
+        controller: 'ConfirmCtrl'
+      })
+
+    }
+
+  }]);
+
+
 /* -------- app/src/js/services/factories/firebase/activities.js -------- */ 
 
 angular
@@ -1355,6 +1478,144 @@ angular
     }
 
     return methods;
+
+  }]);
+
+
+/* -------- app/src/js/services/factories/firebase/delete-category.js -------- */ 
+
+angular
+.module('myApp')
+.factory('deleteCategoryFactory', [
+  '$timeout',
+  '$q',
+  'AwaitFactory',
+  'FBURL',
+  function($timeout, $q, AwaitFactory, FBURL) {
+
+    var deleteCategory, removeTasksReference, removeCompanyReference, mainAwait, deffered;
+
+    // so we will ba able to use .then
+    deffered = $q.defer();
+
+    // function which makes sure .then is fired when everything is done and not before
+    mainAwait = new AwaitFactory(function () {
+      deffered.resolve();
+    });
+ 
+    deleteCategory = function (categoryId) {
+      var categoryRef = new Firebase(FBURL + '/categories/' + categoryId);
+
+      categoryRef.remove(function (res) {
+        mainAwait.decr('deleteCategory');
+      });
+    }
+
+    removeTasksReference = function (categoryId) {
+      var awaitTasks, tasksRef;
+
+      tasksRef = new Firebase(FBURL + '/tasks');
+
+      awaitTasks = new AwaitFactory(function () {
+        mainAwait.decr('removeTasksReference');
+      });
+
+      // filter
+      tasksRef = tasksRef
+      .orderByChild('category')
+      .startAt(categoryId)
+      .endAt(categoryId);
+
+      // fetch data
+      tasksRef.once('value', function (snap) {
+        if (snap.numChildren()) {
+
+          snap.forEach(function (snap) {
+
+            // inrease awaiting request
+            awaitTasks.incr('task');
+
+            // remove category from task
+            snap.child('category').ref().remove(function () {
+
+              // decrease awaiting requests
+              awaitTasks.decr('task');
+
+            });
+          });
+
+        } else {
+          // if no tasks exist we wanna resolve this one
+          awaitTasks.tryResolve();
+        }
+      });
+    }
+
+    removeCompanyReference = function (categoryId) {
+      var awaitCompanies, companiesRef, noReferences;
+
+      companiesRef = new Firebase(FBURL + '/companies');
+
+      awaitCompanies = new AwaitFactory(function () {
+        mainAwait.decr('removeCompanyReference')
+      });
+
+      // if there is to the task from the companies
+      noReferences = true;
+
+      // filter
+      companiesRef = companiesRef
+      .orderByChild('categories')
+
+      companiesRef.once('value', function (snap) {
+        if (snap.hasChildren()) {
+
+          snap.forEach(function (snap) {
+            if (snap.hasChild('categories/' + categoryId)) {
+              noReferences = false;
+
+              // incr
+              awaitCompanies.incr('company');
+
+              // remove category from company
+              snap.child('categories/' + categoryId).ref().remove(function () {
+
+                // decr
+                awaitCompanies.decr('company');
+
+              });
+            }
+
+          });
+
+          // will not touch the any incr() or decr() of awaitingCompanies
+          // this condition will be checked after the loop obviously
+          if (noReferences) {
+            awaitCompanies.tryResolve();
+          }
+
+        } else {
+          awaitCompanies.tryResolve();
+        }
+      });
+    }
+
+
+    return function (categoryId) {
+
+      mainAwait.incr('deleteCategory');
+      deleteCategory(categoryId);
+
+      mainAwait.incr('removeTasksReference');
+      removeTasksReference(categoryId);
+
+      mainAwait.incr('removeCompanyReference');
+      removeCompanyReference(categoryId);
+
+      return deffered.promise;
+    }
+
+
 
   }]);
 

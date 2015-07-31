@@ -11,7 +11,7 @@
       <form name="updateCategoryForm" ng-submit="submit(updateCategoryForm)" ng-if="category" novalidate>
 
         <md-input-container>
-          <label>Namn</label>
+          <label>Kategorinamn</label>
           <input type="text" name="name" ng-model="category.name" required>
           <div ng-messages="updateCategoryForm.name.$error" ng-show="updateCategoryForm.name.$touched || status === 'invalid'">
             <div ng-message="required">Du måste ange att namn.</div>
@@ -43,6 +43,10 @@
             <span ng-if="status === 'submiting'">Sparar</span>
 
           </md-button>
+          <md-button class="md-raised md-warn" ng-click="delete()">
+            Radera kategori
+          </md-button>
+
         </div>
 
       </form>

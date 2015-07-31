@@ -28,7 +28,7 @@
           controller: 'NewCategoryCtrl',
           templateUrl: 'templates/dialogs/new-category.html',
           parent: angular.element(document.body)
-        })
+        });
       }
 
 
