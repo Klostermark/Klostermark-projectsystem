@@ -15,6 +15,7 @@ require('controllers/companies/index.js');
     function($scope, $routeParams, joinForCompanyService, activitiesFactory, $mdDialog, $mdToast) {
 
       var
+        date,
         self = this,
         companyId = $routeParams.id;
       
@@ -26,6 +27,18 @@ require('controllers/companies/index.js');
       
       joinForCompanyService.watch(companyId, function (company) {
         $scope.company = company;
+
+        if ($scope.company.closingMonth) {
+          date = new Date($scope.company.closingMonth);
+          $scope.company.closingMonth = date.yyyymmdd();
+        }
+
+        if ($scope.company.firstClosing) {
+          date = new Date($scope.company.firstClosing);
+          $scope.company.firstClosing = date.yyyymmdd();
+        }
+
+
         !! $scope.$$phase || $scope.$apply();
       });
 

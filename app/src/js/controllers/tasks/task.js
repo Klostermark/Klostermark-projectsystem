@@ -27,21 +27,26 @@
       $scope.categories = categoriesFactory.all();
 
       // watch for fully loaded data
-      $scope.task.$watch(function () {
+      $scope.categories.$loaded().then(function () {
         self.fetched();
-      })
+      });
+      $scope.task.$loaded().then(function () {
+        self.fetched();
+      });
+
+      // display correct category
       $scope.categories.$watch(function () {
-        self.fetched();
-      })
+        // issue#2
+        $scope.category = self.getCategory();
+      });
+
 
       // wait so all data is fetched
       this.fetched = function () {
-        this.fetchedProgress = this.fetchedProgress === undefined ? 0 : this.fetchedProgress + 1;
+        this.fetchedProgress = this.fetchedProgress === undefined ? 1 : this.fetchedProgress + 1;
 
         if (this.fetchedProgress >= 2) {
           $scope.fetched = true;
-          // issue#2
-          $scope.category = this.getCategory();
         }
       }
 
@@ -141,7 +146,10 @@
 
       }
 
-      $scope.delete = function () {
+      $scope.delete = function (event) {
+        // keep the form pristine
+        event.preventDefault();
+
         confirmFactory({
           message: 'Är du säker på att du vill radera detta moment?',
           query: function () {

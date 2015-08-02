@@ -8,30 +8,39 @@ require('controllers/companies/index.js');
   .controller('EditCompanyCtrl', [
     '$scope',
     '$routeParams',
+    '$location',
     'companiesFactory',
     'categoriesFactory',
-    function($scope, $routeParams, companiesFactory, categoriesFactory) {
+    'confirmFactory',
+    'deleteCompanyFactory',
+    function($scope, $routeParams, $location, companiesFactory, categoriesFactory, confirmFactory, deleteCompanyFactory) {
 
       var
         self = this,
-        id = $routeParams.id;
+        companyId = $routeParams.id;
 
       $scope.status = 'pristine';
       $scope.companyCategories = [];
       $scope.banks = ['SEB', 'Handelsbanken', 'Nordea', 'Swedbank', 'Annan'];
 
       // fetch data
-      $scope.company = companiesFactory.get(id);
+      $scope.company = companiesFactory.get(companyId);
       $scope.categories = categoriesFactory.all();
 
       
       // watch for fully loaded data
       $scope.company.$watch(function () {
         self.fetched('company');
-      })
+      });
       $scope.categories.$watch(function () {
         self.fetched('categories');
-      })
+      });
+      $scope.company.$loaded().then(function () {
+        self.fetched('company');
+      });
+      $scope.categories.$loaded().then(function () {
+        self.fetched('categories');
+      });
 
       // wait so all data is fetched
       this.keepTrack = ['company', 'categories'];
@@ -129,6 +138,20 @@ require('controllers/companies/index.js');
           $scope.status = 'invalid';
         }
 
+      }
+
+      $scope.delete = function (event) {
+        // keep the form pristine
+        event.preventDefault();
+
+        confirmFactory({
+          message: 'Är du säker på att du vill radera detta företag?',
+          query: function () {
+            return deleteCompanyFactory(companyId);
+          }
+        }).then(function () {
+          $location.path('companies')
+        });
       }
 
     }]);

@@ -38,7 +38,10 @@ require('controllers/categories/index.js');
         }
       }
 
-      $scope.delete = function () {
+      $scope.delete = function (event) {
+        // keep the form pristine
+        event.preventDefault();
+
         confirmFactory({
           message: 'Är du säker på att du vill radera denna kategori?',
           query: function () {

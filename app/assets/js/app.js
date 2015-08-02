@@ -385,7 +385,10 @@ app.config(['$routeProvider', function($routeProvider) {
         }
       }
 
-      $scope.delete = function () {
+      $scope.delete = function (event) {
+        // keep the form pristine
+        event.preventDefault();
+
         confirmFactory({
           message: 'Är du säker på att du vill radera denna kategori?',
           query: function () {
@@ -506,6 +509,7 @@ app.config(['$routeProvider', function($routeProvider) {
     function($scope, $routeParams, joinForCompanyService, activitiesFactory, $mdDialog, $mdToast) {
 
       var
+        date,
         self = this,
         companyId = $routeParams.id;
       
@@ -517,6 +521,18 @@ app.config(['$routeProvider', function($routeProvider) {
       
       joinForCompanyService.watch(companyId, function (company) {
         $scope.company = company;
+
+        if ($scope.company.closingMonth) {
+          date = new Date($scope.company.closingMonth);
+          $scope.company.closingMonth = date.yyyymmdd();
+        }
+
+        if ($scope.company.firstClosing) {
+          date = new Date($scope.company.firstClosing);
+          $scope.company.firstClosing = date.yyyymmdd();
+        }
+
+
         !! $scope.$$phase || $scope.$apply();
       });
 
@@ -595,30 +611,39 @@ app.config(['$routeProvider', function($routeProvider) {
   .controller('EditCompanyCtrl', [
     '$scope',
     '$routeParams',
+    '$location',
     'companiesFactory',
     'categoriesFactory',
-    function($scope, $routeParams, companiesFactory, categoriesFactory) {
+    'confirmFactory',
+    'deleteCompanyFactory',
+    function($scope, $routeParams, $location, companiesFactory, categoriesFactory, confirmFactory, deleteCompanyFactory) {
 
       var
         self = this,
-        id = $routeParams.id;
+        companyId = $routeParams.id;
 
       $scope.status = 'pristine';
       $scope.companyCategories = [];
       $scope.banks = ['SEB', 'Handelsbanken', 'Nordea', 'Swedbank', 'Annan'];
 
       // fetch data
-      $scope.company = companiesFactory.get(id);
+      $scope.company = companiesFactory.get(companyId);
       $scope.categories = categoriesFactory.all();
 
       
       // watch for fully loaded data
       $scope.company.$watch(function () {
         self.fetched('company');
-      })
+      });
       $scope.categories.$watch(function () {
         self.fetched('categories');
-      })
+      });
+      $scope.company.$loaded().then(function () {
+        self.fetched('company');
+      });
+      $scope.categories.$loaded().then(function () {
+        self.fetched('categories');
+      });
 
       // wait so all data is fetched
       this.keepTrack = ['company', 'categories'];
@@ -716,6 +741,20 @@ app.config(['$routeProvider', function($routeProvider) {
           $scope.status = 'invalid';
         }
 
+      }
+
+      $scope.delete = function (event) {
+        // keep the form pristine
+        event.preventDefault();
+
+        confirmFactory({
+          message: 'Är du säker på att du vill radera detta företag?',
+          query: function () {
+            return deleteCompanyFactory(companyId);
+          }
+        }).then(function () {
+          $location.path('companies')
+        });
       }
 
     }]);
@@ -1135,21 +1174,26 @@ app.controller('NavController', function($scope, $mdSidenav) {
       $scope.categories = categoriesFactory.all();
 
       // watch for fully loaded data
-      $scope.task.$watch(function () {
+      $scope.categories.$loaded().then(function () {
         self.fetched();
-      })
+      });
+      $scope.task.$loaded().then(function () {
+        self.fetched();
+      });
+
+      // display correct category
       $scope.categories.$watch(function () {
-        self.fetched();
-      })
+        // issue#2
+        $scope.category = self.getCategory();
+      });
+
 
       // wait so all data is fetched
       this.fetched = function () {
-        this.fetchedProgress = this.fetchedProgress === undefined ? 0 : this.fetchedProgress + 1;
+        this.fetchedProgress = this.fetchedProgress === undefined ? 1 : this.fetchedProgress + 1;
 
         if (this.fetchedProgress >= 2) {
           $scope.fetched = true;
-          // issue#2
-          $scope.category = this.getCategory();
         }
       }
 
@@ -1249,7 +1293,10 @@ app.controller('NavController', function($scope, $mdSidenav) {
 
       }
 
-      $scope.delete = function () {
+      $scope.delete = function (event) {
+        // keep the form pristine
+        event.preventDefault();
+
         confirmFactory({
           message: 'Är du säker på att du vill radera detta moment?',
           query: function () {
@@ -1314,6 +1361,16 @@ angular.module('myApp')
       return items.slice().reverse();
     };
   });
+
+
+/* -------- app/src/js/misc/yyyymmdd.js -------- */ 
+
+Date.prototype.yyyymmdd = function() {
+  var yyyy = this.getFullYear().toString();
+  var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
+  var dd  = this.getDate().toString();
+  return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]); // padding
+};
 
 
 /* -------- app/src/js/services/factories/await.js -------- */ 
@@ -1627,6 +1684,93 @@ angular
 
       mainAwait.incr('removeCompanyReference');
       removeCompanyReference(categoryId);
+
+      return deffered.promise;
+    }
+
+
+
+  }]);
+
+
+/* -------- app/src/js/services/factories/firebase/delete-company.js -------- */ 
+
+angular
+.module('myApp')
+.factory('deleteCompanyFactory', [
+  '$q',
+  'AwaitFactory',
+  'FBURL',
+  function($q, AwaitFactory, FBURL) {
+
+    var deleteCompany, deleteActivities, mainAwait, deffered;
+
+    // so we will ba able to use .then
+    deffered = $q.defer();
+
+    // function which makes sure .then is fired when everything is done and not before
+    mainAwait = new AwaitFactory(function () {
+      deffered.resolve();
+    });
+ 
+    deleteCompany = function (companyId) {
+      var categoryRef = new Firebase(FBURL + '/companies/' + companyId);
+
+      categoryRef.remove(function (res) {
+        mainAwait.decr('deleteCompany');
+      });
+    }
+
+    deleteActivities = function (companyId) {
+      var awaitActivities, activitiesRef, noReferences;
+
+      activitiesRef = new Firebase(FBURL + '/activities');
+
+      noReferences = true;
+
+      awaitActivities = new AwaitFactory(function () {
+        mainAwait.decr('removeTasksReference');
+      });
+
+      // fetch data
+      activitiesRef.once('value', function (snap) {
+        if (snap.numChildren()) {
+
+          snap.forEach(function (snap) {
+            if (snap.hasChild(companyId)) {
+              noReferences = false;
+
+              // inrease awaiting request
+              awaitActivities.incr('company activity');
+
+              // remove category from company activity
+              snap.child(companyId).ref().remove(function () {
+
+                // decrease awaiting requests
+                awaitActivities.decr('company activity');
+
+              });
+            }
+          });
+
+          if (noReferences) {
+            awaitActivities.tryResolve();
+          }
+
+        } else {
+          // if no tasks exist we wanna resolve this one
+          awaitActivities.tryResolve();
+        }
+      });
+    }
+
+    return function (companyId) {
+
+      mainAwait.incr('deleteCompany');
+      deleteCompany(companyId);
+
+      mainAwait.incr('deleteActivities');
+      deleteActivities(companyId);
 
       return deffered.promise;
     }
