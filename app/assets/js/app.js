@@ -240,20 +240,34 @@ app.config(['$routeProvider', function($routeProvider) {
 
   var app = angular.module('myApp.account', ['firebase', 'firebase.utils', 'firebase.auth', 'ngRoute']);
 
-  app.controller('AccountCtrl', ['$rootScope', '$scope', 'Auth', 'fbutil', 'user', '$location', '$firebaseObject',
+  app.controller('AccountCtrl', [
+    '$rootScope',
+    '$scope',
+    'Auth',
+    'fbutil',
+    'user',
+    '$location',
+    '$firebaseObject',
     function($rootScope, $scope, Auth, fbutil, user, $location, $firebaseObject) {
-      var unbind;
+      var unbind, profile;
+
       // create a 3-way binding with the user profile object in Firebase
-      var profile = $firebaseObject(fbutil.ref('users', user.uid));
-      profile.$bindTo($scope, 'profile').then(function(ub) { unbind = ub; });
+      // profile = $firebaseObject(fbutil.ref('users', user.uid));
+      // profile
+      // .$bindTo($rootScope, 'profile')
+      // .then(function(ub) {
+      //   console.log($rootScope.profile, profile)
+      //   console.log(user.uid)
+      //   unbind = ub;
+      // });
 
       // expose logout function to scope
-      $rootScope.logout = function() {
-        if( unbind ) { unbind(); }
-        profile.$destroy();
-        Auth.$unauth();
-        $location.path('/login');
-      };
+      // $rootScope.logout = function() {
+      //   if( unbind ) { unbind(); }
+      //   profile.$destroy();
+      //   Auth.$unauth();
+      //   $location.path('/login');
+      // };
 
       $scope.changePassword = function(pass, confirm, newPass) {
         resetMessages();
@@ -956,20 +970,25 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
 
   app.controller('mainCtrl', [
     '$scope',
-    '$rootScope',
     '$location',
+    'Auth',
     '$mdSidenav',
-    function($scope, $rootScope, $location, $mdSidenav) {
+    function($scope, $location, Auth, $mdSidenav) {
 
-      $rootScope.navigate = function (path) {
+      $scope.navigate = function (path) {
         // close sidenav
         $mdSidenav('left').close();
         $location.path(path);
       }
 
-      $scope.openLeftMenu = function() {
+      $scope.openLeftMenu = function () {
         $mdSidenav('left').toggle();
       };
+
+      $scope.logout = function () {
+        Auth.$unauth();
+        $location.path('/login');
+      }
 
     }]);
 

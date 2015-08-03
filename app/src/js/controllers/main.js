@@ -5,20 +5,25 @@
 
   app.controller('mainCtrl', [
     '$scope',
-    '$rootScope',
     '$location',
+    'Auth',
     '$mdSidenav',
-    function($scope, $rootScope, $location, $mdSidenav) {
+    function($scope, $location, Auth, $mdSidenav) {
 
-      $rootScope.navigate = function (path) {
+      $scope.navigate = function (path) {
         // close sidenav
         $mdSidenav('left').close();
         $location.path(path);
       }
 
-      $scope.openLeftMenu = function() {
+      $scope.openLeftMenu = function () {
         $mdSidenav('left').toggle();
       };
+
+      $scope.logout = function () {
+        Auth.$unauth();
+        $location.path('/login');
+      }
 
     }]);
 
