@@ -10,6 +10,8 @@
     '$mdSidenav',
     function($scope, $location, Auth, $mdSidenav) {
 
+      $scope.authorized = false;
+
       $scope.navigate = function (path) {
         // close sidenav
         $mdSidenav('left').close();
@@ -24,6 +26,14 @@
         Auth.$unauth();
         $location.path('/login');
       }
+
+      Auth.$onAuth(function (authData) {
+        if (authData) {
+          $scope.authorized = true;
+        } else {
+          $scope.authorized = false;
+        }
+      });
 
     }]);
 
