@@ -75,37 +75,42 @@
       </md-tab>
       <md-tab label="Kundinformation">
         <md-content class="md-padding">
+          <div class="container margin-top">
+            <md-card>
+              <md-card-content>
+                <div ng-if=" ! company.name" class="spinner">
+                  <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+                  </md-progress-circular>
+                  <p style="text-align:center">Laddar Företag</p>
+                </div>
 
-        <div ng-if=" ! company.name" class="spinner">
-          <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
-          </md-progress-circular>
-          <p style="text-align:center">Laddar Företag</p>
-        </div>
+                <div ng-if="company.name">
+                  <h2>{{ company.name }}</h2>
+                  Kundansvarig: {{ company.accountManager }} <br>
+                  Eu-försäljning: {{ company.EUSales ? 'Bolaget har haft EU-försäljning' : 'Bolaget har inte haft EU-försäljning'}} <br>
+                  Bokföringsmetod: {{ company.accountingMethod }} <br>
+                  Bank: {{ company.bank }} <br>
+                  {{ company.brokenFiscalYear ? 'Räkneskapsåret är brutet och har sitt första bokslut' : 'Obrutet räkneskapsår' }}
+                  {{ company.closingMonth ? company.closingMonth : '' }} <br>
+                  Arbetsgivare: {{ company.employer ? 'Arbetsgivare' : 'Ingen arbetsgivare' }} <br>
+                  Löner: {{ company.wages ? 'Löner' : 'Inga löner' }}<br>
+                  {{ company.extendedFiscalYear ? 'Förlängt räknaskapsår till och med' : 'Räkneskapsåret är inte förlängt.' }}
+                  {{ company.firstClosing ? company.firstClosing : '' }} <br>
+                  Momsperiod: {{ company.monthlyVAT }} <br>
+                  <md-divider></md-divider>
+                  Kontaktperson: {{ company.contactPerson }} <br>
+                  Telefonnummer: {{ company.contactPhone }} <br>
+                  E-postadress: {{ company.submissionTemplate }} <br>
+                  Faktureringsadress: {{ company.invoiceAddress }} <br>
 
-        <div ng-if="company.name">
-
-          {{ company.EUSales ? 'EU-försäljning' : 'ingen EU-försäljning'}} <br>
-          {{ company.accountManager }} <br>
-          {{ company.accountingMethod }} <br>
-          {{ company.bank }} <br>
-          {{ company.brokenFiscalYear ? 'Brutet räkneskapsår' : 'Obrutet räkneskapsår' }} <br>
-          {{ company.closingMonth ? company.closingMonth : '' }} <br>
-          {{ company.contactPerson }} <br>
-          {{ company.contactPhone }} <br>
-          {{ company.employer ? 'Arbetsgivare' : 'Ingen arbetsgivare' }} <br>
-          {{ company.extendedFiscalYear ? 'Förlängt räknaskapsår' : 'Icke förlängt räknaskapsår' }} <br>
-          {{ company.firstClosing ? company.firstClosing : '' }} <br>
-          {{ company.invoiceAddress }} <br>
-          {{ company.monthlyVAT }} <br>
-          {{ company.name }} <br>
-          {{ company.submissionTemplate }} <br>
-          {{ company.wages ? 'Löner' : 'Inga löner' }}
-
-        </div>
+                </div>
+              </md-card-content>
+            </md-card>
+          </div>
 
         </md-content>
       </md-tab>
-      <md-tab label="Löner">
+<!--       <md-tab label="Löner">
 
         <div class="container">
           <md-card>
@@ -131,8 +136,7 @@
         <md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Lägg till löneuppdrag">
           <md-icon>add</md-icon>
         </md-button>
-
-      </md-tab>
+      </md-tab> -->
     </md-tabs>
   </md-content>
 </div>
