@@ -7,11 +7,18 @@
     '$scope',
     '$rootScope',
     '$location',
-    function($scope, $rootScope, $location) {
+    '$mdSidenav',
+    function($scope, $rootScope, $location, $mdSidenav) {
 
       $rootScope.navigate = function (path) {
+        // close sidenav
+        $mdSidenav('left').close();
         $location.path(path);
       }
+
+      $scope.openLeftMenu = function() {
+        $mdSidenav('left').toggle();
+      };
 
     }]);
 

@@ -958,11 +958,38 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
     '$scope',
     '$rootScope',
     '$location',
-    function($scope, $rootScope, $location) {
+    '$mdSidenav',
+    function($scope, $rootScope, $location, $mdSidenav) {
 
       $rootScope.navigate = function (path) {
+        // close sidenav
+        $mdSidenav('left').close();
         $location.path(path);
       }
+
+      $scope.openLeftMenu = function() {
+        $mdSidenav('left').toggle();
+      };
+
+    }]);
+
+})(angular);
+
+
+/* -------- app/src/js/controllers/misc/toast.js -------- */ 
+
+(function (angular) {
+  "use strict";
+
+  angular.module('myApp')
+  .controller('toastCtrl', [
+    '$scope',
+    '$mdToast',
+    function($scope, $mdToast) {
+
+      $scope.closeToast = function() {
+        $mdToast.hide();
+      };
 
     }]);
 
@@ -1044,16 +1071,6 @@ angular.module('myApp.login', ['firebase.utils', 'firebase.auth', 'ngRoute'])
     ]);
 
 })(angular);
-
-
-
-/* -------- app/src/js/controllers/sidenav.js -------- */ 
-
-app.controller('NavController', function($scope, $mdSidenav) {
-  $scope.openLeftMenu = function() {
-    $mdSidenav('left').toggle();
-  };
-});
 
 
 
@@ -1307,26 +1324,6 @@ app.controller('NavController', function($scope, $mdSidenav) {
           $location.path('settings/tasks')
         });
       }
-
-    }]);
-
-})(angular);
-
-
-/* -------- app/src/js/controllers/toast.js -------- */ 
-
-(function (angular) {
-  "use strict";
-
-  angular.module('myApp')
-  .controller('toastCtrl', [
-    '$scope',
-    '$mdToast',
-    function($scope, $mdToast) {
-
-      $scope.closeToast = function() {
-        $mdToast.hide();
-      };
 
     }]);
 
