@@ -148,7 +148,8 @@ app.config(['$routeProvider', function($routeProvider) {
     templateUrl: 'templates/login.html'
   })
   .otherwise({
-    templateUrl: 'templates/404.html'
+    // templateUrl: 'templates/404.html'
+    redirectTo: 'companies'
   })
 
 }]);
@@ -239,15 +240,15 @@ app.config(['$routeProvider', function($routeProvider) {
 
   var app = angular.module('myApp.account', ['firebase', 'firebase.utils', 'firebase.auth', 'ngRoute']);
 
-  app.controller('AccountCtrl', ['$scope', 'Auth', 'fbutil', 'user', '$location', '$firebaseObject',
-    function($scope, Auth, fbutil, user, $location, $firebaseObject) {
+  app.controller('AccountCtrl', ['$rootScope', '$scope', 'Auth', 'fbutil', 'user', '$location', '$firebaseObject',
+    function($rootScope, $scope, Auth, fbutil, user, $location, $firebaseObject) {
       var unbind;
       // create a 3-way binding with the user profile object in Firebase
       var profile = $firebaseObject(fbutil.ref('users', user.uid));
       profile.$bindTo($scope, 'profile').then(function(ub) { unbind = ub; });
 
       // expose logout function to scope
-      $scope.logout = function() {
+      $rootScope.logout = function() {
         if( unbind ) { unbind(); }
         profile.$destroy();
         Auth.$unauth();
