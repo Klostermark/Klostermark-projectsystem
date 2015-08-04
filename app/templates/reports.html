@@ -55,7 +55,7 @@
           </div>
 
           <div ng-if="sorted">
-            <md-subheader class="md-accent">Ej slutförda</md-subheader>
+            <md-subheader class="md-accent">Ej slutförda ({{ sorted.incomplete.length }})</md-subheader>
             <md-list>
               <md-list-item
                 ng-repeat-start="company in sorted.incomplete"
@@ -67,7 +67,7 @@
             </md-list>
               
 
-            <md-subheader class="md-accent">Slutförda</md-subheader>
+            <md-subheader class="md-accent">Slutförda ({{ sorted.complete.length }})</md-subheader>
             <md-list>
               <md-list-item
                 ng-repeat-start="company in sorted.complete"
