@@ -1680,11 +1680,6 @@ angular
   }]);
 
 
-/* -------- app/src/js/services/factories/firebase/compile-report.js -------- */ 
-
-
-
-
 /* -------- app/src/js/services/factories/firebase/delete-category.js -------- */ 
 
 angular
