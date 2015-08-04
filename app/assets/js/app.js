@@ -14,6 +14,7 @@ var app = angular.module('myApp', [
     'myApp.categories',
     'myApp.tasks',
     'myApp.companies',
+    'myApp.reports',
     'firebase', // temp
     'ngMaterial'   // temp
   ])
@@ -31,7 +32,7 @@ var app = angular.module('myApp', [
 'use strict';
 
 // Declare app level module which depends on filters, and services
-angular.module('myApp.config', [])
+angular.module('myApp.config', ['ngMaterial'])
 
   // version of this seed app is compatible with angularFire 1.0.0
   // see tags for other versions: https://github.com/firebase/angularFire-seed/tags
@@ -98,6 +99,7 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .whenAuthenticated('/reports', {
     templateUrl: 'templates/reports.html',
+    controller: 'ReportsCtrl'
   })
   .whenAuthenticated('/settings', {
     templateUrl: 'templates/settings.html',
@@ -149,7 +151,7 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .otherwise({
     // templateUrl: 'templates/404.html'
-    redirectTo: 'companies'
+    redirectTo: '/companies'
   })
 
 }]);
@@ -231,6 +233,21 @@ app.config(['$routeProvider', function($routeProvider) {
 
 })(angular);
 
+
+
+/* -------- app/src/js/configs/themes.js -------- */ 
+
+'use strict';
+
+angular.module('myApp.config')
+.config([
+  '$mdThemingProvider',
+  function ($mdThemingProvider) {
+    // Configure a dark theme with primary foreground yellow
+    $mdThemingProvider.theme('docs-dark', 'default')
+        .primaryPalette('blue')
+        .dark();
+  }]);
 
 
 /* -------- app/src/js/controllers/account.js -------- */ 
@@ -1062,6 +1079,127 @@ app.config(['$routeProvider', function($routeProvider) {
 })(angular);
 
 
+/* -------- app/src/js/controllers/reports/index.js -------- */ 
+
+
+(function (angular) {
+  "use strict";
+
+  var app = angular.module('myApp.reports', ['ngRoute', 'firebase.utils', 'firebase', 'ngMaterial', 'ngMessages']);
+
+  app.controller('ReportsCtrl', [
+    '$scope',
+    'categoriesFactory',
+    'companiesFactory',
+    'activitiesFactory',
+    function($scope, categoriesFactory, companiesFactory, activitiesFactory) {
+
+      var 
+        setDefaultDate, companies, tasks, activities, categoryId, compileReport, tryInitiate,
+        self = this;
+
+      $scope.filter = {
+        month: null,
+        category: null
+      };
+      $scope.storted = null;
+
+      // fetch data
+      $scope.categories = categoriesFactory.all();
+      companies = companiesFactory.all();
+
+      $scope.categories.$loaded().then(function () {
+        tryInitiate('categories');
+      });
+      companies.$loaded().then(function () {
+        tryInitiate('companies');
+      });
+
+
+      $scope.waitingFor = ['categories', 'companies'];
+      tryInitiate = function (which) {
+        $scope.waitingFor.splice($scope.waitingFor.indexOf(which), 1);
+
+        if ($scope.waitingFor.length === 0) {
+          setDefaultDate();
+        }
+      }
+
+
+      setDefaultDate = function () {
+        var
+          now = new Date(),
+          month = new Date(now.getFullYear() + '-' + (now.getMonth() + 1));
+
+        $scope.filter.month = month;
+      }
+
+      $scope.tryCompileReport = function () {
+        var timestamp;
+
+        if ($scope.filter.month && $scope.filter.month.getFullYear() > 2000 && $scope.filter.category) {
+          timestamp = $scope.filter.month.getTime();
+          categoryId = $scope.filter.category.$id;
+          tasks = $scope.filter.category.tasks;
+
+          activities = activitiesFactory.get(timestamp);
+
+          activities
+          .$loaded()
+          .then(function (res) {
+            // add listener
+            activities.$watch(function () {
+              compileReport();
+            });
+
+            compileReport();
+          });
+
+        }
+      }
+
+      compileReport = function () {
+        var
+          i, companyId, task, incomplete,
+          sorted = {
+            complete: [],
+            incomplete: []
+          };
+
+        for (i = 0; i < companies.length; i++) {
+
+          if (companies[i].categories && companies[i].categories[categoryId]) {
+            companyId = companies[i].$id;
+
+            // sort out companies subscribed to category
+            if (activities[companyId]) {
+              incomplete = false;
+
+              for (task in tasks) {
+                if ( ! activities[companyId][task]) {
+                  // task is missing in activities
+                  incomplete = true;
+                  sorted.incomplete.push(companies[i]);
+                  break;
+                }
+              }
+
+              incomplete || sorted.complete.push(companies[i]);
+
+            } else {
+              // the company have no activities this month
+              sorted.incomplete.push(companies[i]);
+            }
+          }
+        }
+        $scope.sorted = sorted;
+      }
+
+    }]);
+
+})(angular);
+
+
 /* -------- app/src/js/controllers/tasks/index.js -------- */ 
 
 (function (angular) {
@@ -1540,6 +1678,11 @@ angular
     return methods;
 
   }]);
+
+
+/* -------- app/src/js/services/factories/firebase/compile-report.js -------- */ 
+
+
 
 
 /* -------- app/src/js/services/factories/firebase/delete-category.js -------- */ 

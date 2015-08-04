@@ -13,6 +13,8 @@
 
             <div ng-if="company.name">
 
+              <h2>{{ company.name }}</h2>
+
               <p ng-if=" ! company.categories">För närvarande finns inga moment kopplde till denna kund.</p>
 
               <form name="activitiesForm" ng-if="company.categories">

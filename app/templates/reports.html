@@ -2,21 +2,85 @@
   <md-card>
     <md-toolbar class="md-theme-light">
       <h2 class="md-toolbar-tools">
-      <md-select ng-model="user" md-on-open="loadUsers()" style="min-width: 200px;">
-        <md-select-label>Filtrera fram:</md-select-label>
-        <md-option ng-value="user" ng-repeat="user in users">Kategori #1</md-option>
-      </md-select>
+        Filtrera
       </h2>
     </md-toolbar>
     <md-content>
-      <md-subheader class="md-accent">Ej slutförda</md-subheader>
-      <md-list>
-        <md-list-item>Pelles bygg</md-list-item>
-      </md-list>
-      <md-subheader class="md-accent">Slutförda</md-subheader>
-      <md-list>
-        <md-list-item>Pelles bygg</md-list-item>
-      </md-list>
+
+      <div ng-if="waitingFor.length">
+        <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+        </md-progress-circular>
+        <p style="text-align:center">Laddar in företag och kategorier</p>
+      </div>
+
+      <div ng-if=" ! waitingFor.length">
+        <form name="filterForm" layout="column">
+          <md-content md-theme="docs-dark" layout-padding layout="row" layout-sm="column">
+            <md-input-container class="month-selector">
+              <label>Datum</label>
+              <input type="month" name="date" ng-model="filter.month" ng-change="tryCompileReport()" required>
+              <div ng-messages="filterForm.date.$error">
+                <div ng-message="required">Var god välj en månad.</div>
+              </div>
+            </md-input-container>
+            <md-input-container>
+              <md-select
+                name="category"
+                ng-model="filter.category"
+                placeholder="Kategori"
+                ng-change="tryCompileReport()"
+                required
+              >
+                <md-option
+                  ng-repeat="category in categories"
+                  ng-if="category.tasks"
+                  ng-value="category"
+                >
+                  {{ category.name }}
+                </md-option>
+              </md-select>
+              <div class="errors" ng-messages="filterForm.category.$error">
+                <div ng-message="required">Var god välj en kategori.</div>
+              </div>
+            </md-input-container>
+          </md-content>
+        </form>
+
+        <div ng-if="filter.month && filter.category">
+
+          <div ng-if=" ! sorted">
+            <md-progress-circular class="md-hue-2" md-mode="indeterminate" style="margin:auto">
+            </md-progress-circular>
+            <p style="text-align:center">Sammanställer rapport</p>
+          </div>
+
+          <div ng-if="sorted">
+            <md-subheader class="md-accent">Ej slutförda</md-subheader>
+            <md-list>
+              <md-list-item
+                ng-repeat-start="company in sorted.incomplete"
+                ng-click="navigate('/companies/' + company.$id)"
+              >
+                <p>{{ company.name }}</p>
+              </md-list-item>
+              <md-divider ng-repeat-end ng-if=" ! $last"></md-divider>
+            </md-list>
+              
+
+            <md-subheader class="md-accent">Slutförda</md-subheader>
+            <md-list>
+              <md-list-item
+                ng-repeat-start="company in sorted.complete"
+                ng-click="navigate('/companies/' + company.$id)"
+              >
+                <p>{{ company.name }}</p>
+              </md-list-item>
+              <md-divider ng-repeat-end ng-if=" ! $last"></md-divider>
+            </md-list>
+          </div>
+        </div>
+      </div>
+
     </md-content>
   </md-card>
 </div>

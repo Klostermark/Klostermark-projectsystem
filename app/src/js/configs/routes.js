@@ -7,6 +7,7 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .whenAuthenticated('/reports', {
     templateUrl: 'templates/reports.html',
+    controller: 'ReportsCtrl'
   })
   .whenAuthenticated('/settings', {
     templateUrl: 'templates/settings.html',
@@ -58,7 +59,7 @@ app.config(['$routeProvider', function($routeProvider) {
   })
   .otherwise({
     // templateUrl: 'templates/404.html'
-    redirectTo: 'companies'
+    redirectTo: '/companies'
   })
 
 }]);
