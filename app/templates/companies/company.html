@@ -39,25 +39,13 @@
                         <p>{{ task.name }}</p>
                         <!-- description -->
                         <md-icon
-                          ng-click="showDescription(task)"
-                          class="md-secondary"
+                          ng-click="showTask(task)"
+                          ng-class="[md-secondary, {changed: task.notification}]"
                           aria-label="Visa momentbeskrivning"
                         >
                           message
-                           <md-tooltip>
-                            Visa momentbeskrivning
-                          </md-tooltip>
-                        </md-icon>
-                        <!-- notification -->
-                        <md-icon
-                          ng-if="task.notification"
-                          ng-click="showNotification(task)"
-                          class="md-secondary changed"
-                          aria-label="Visa rutinförändring för detta moment"
-                        >
-                          new_releases
-                           <md-tooltip>
-                            Visa rutinförändring för detta moment
+                           <md-tooltip ng-if="task.notification">
+                            Ny rutinförändring!
                           </md-tooltip>
                         </md-icon>
                       </md-list-item>

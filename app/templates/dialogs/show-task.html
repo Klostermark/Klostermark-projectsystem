@@ -1,0 +1,29 @@
+<md-dialog>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Momentbeskrivning</h2>
+    </div>
+  </md-toolbar>
+  <md-dialog-content>
+
+  <p>
+    {{ task.description }}
+  </p>
+
+  <div ng-if="task.notification">
+    <md-divider></md-divider>
+
+    <h3 class="md-title">Rutinförändring:</h3>
+
+    <p>
+      {{ task.notification.description }}
+    </p>
+  </div>
+
+  </md-dialog-content>
+  <div class="md-actions" layout="row">
+    <md-button ng-click="hide()" class="md-primary">
+      Förstått
+    </md-button>
+  </div>
+</md-dialog>

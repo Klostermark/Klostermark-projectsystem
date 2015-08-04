@@ -81,25 +81,16 @@ require('controllers/companies/index.js');
         }
       }
 
-      $scope.showDescription = function (task) {
-        $mdDialog.show(
-          $mdDialog.alert()
-            .title('Momentbeskrivning')
-            .content(task.description)
-            .ariaLabel('Momentbeskrivning')
-            .ok('Förstått')
-        );
+      $scope.showTask = function (task) {
+        $mdDialog.show({
+          templateUrl: 'templates/dialogs/show-task.html',
+          parent: angular.element(document.body),
+          locals: {
+            task: task,
+          },
+          controller: 'ShowTaskCtrl'
+        });
       }
-
-      $scope.showNotification = function (task) {
-        $mdDialog.show(
-          $mdDialog.alert()
-            .title('Rutinförändring')
-            .content(task.notification.description)
-            .ariaLabel('Rutinförändring')
-            .ok('Förstått')
-        );
-      }   
 
     }]);
 

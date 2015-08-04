@@ -1,22 +1,22 @@
 <md-dialog>
-    <md-toolbar>
-      <div class="md-toolbar-tools">
-        <h2>Bekräfta handling</h2>
-      </div>
-    </md-toolbar>
-    <md-dialog-content>
-
-    <p>
-      {{ message }}
-    </p>
-
-    </md-dialog-content>
-    <div class="md-actions" layout="row">
-      <md-button ng-click="cancel()" class="md-primary">
-        Avbryt
-      </md-button>
-      <md-button ng-click="confirm()" class="md-primary" ng-disabled="status === 'submitting'">
-        Bekräfta
-      </md-button>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Bekräfta handling</h2>
     </div>
+  </md-toolbar>
+  <md-dialog-content>
+
+  <p>
+    {{ message }}
+  </p>
+
+  </md-dialog-content>
+  <div class="md-actions" layout="row">
+    <md-button ng-click="cancel()" class="md-primary">
+      Avbryt
+    </md-button>
+    <md-button ng-click="confirm()" class="md-primary" ng-disabled="status === 'submitting'">
+      Bekräfta
+    </md-button>
+  </div>
 </md-dialog>

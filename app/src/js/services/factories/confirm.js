@@ -14,7 +14,7 @@ angular
           query: data.query,
         },
         controller: 'ConfirmCtrl'
-      })
+      });
 
     }
 

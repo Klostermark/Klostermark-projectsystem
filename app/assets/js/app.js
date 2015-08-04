@@ -590,25 +590,16 @@ app.config(['$routeProvider', function($routeProvider) {
         }
       }
 
-      $scope.showDescription = function (task) {
-        $mdDialog.show(
-          $mdDialog.alert()
-            .title('Momentbeskrivning')
-            .content(task.description)
-            .ariaLabel('Momentbeskrivning')
-            .ok('Förstått')
-        );
+      $scope.showTask = function (task) {
+        $mdDialog.show({
+          templateUrl: 'templates/dialogs/show-task.html',
+          parent: angular.element(document.body),
+          locals: {
+            task: task,
+          },
+          controller: 'ShowTaskCtrl'
+        });
       }
-
-      $scope.showNotification = function (task) {
-        $mdDialog.show(
-          $mdDialog.alert()
-            .title('Rutinförändring')
-            .content(task.notification.description)
-            .ariaLabel('Rutinförändring')
-            .ok('Förstått')
-        );
-      }   
 
     }]);
 
@@ -1019,6 +1010,29 @@ app.config(['$routeProvider', function($routeProvider) {
 })(angular);
 
 
+/* -------- app/src/js/controllers/misc/show-task.js -------- */ 
+
+(function (angular) {
+  "use strict";
+  
+  angular.module('myApp')
+  .controller('ShowTaskCtrl', [
+    '$scope',
+    '$mdDialog',
+    'task',
+    function($scope, $mdDialog, task) {
+
+      $scope.task = task;
+
+      $scope.hide = function () {
+        $mdDialog.hide();
+      }
+
+    }]);
+
+})(angular);
+
+
 /* -------- app/src/js/controllers/misc/toast.js -------- */ 
 
 (function (angular) {
@@ -1397,7 +1411,7 @@ angular
           query: data.query,
         },
         controller: 'ConfirmCtrl'
-      })
+      });
 
     }
 
