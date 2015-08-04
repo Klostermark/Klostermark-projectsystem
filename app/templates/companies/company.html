@@ -24,6 +24,7 @@
                     <div ng-message="required">Var god välj en månad.</div>
                   </div>
                 </md-input-container>
+                
                 <div ng-repeat="category in company.categories" ng-if="dateSelected">
                   <span class="category-title">{{ category.name }}</span>
                   <md-card>

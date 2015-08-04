@@ -15,7 +15,7 @@ require('controllers/companies/index.js');
     function($scope, $routeParams, joinForCompanyService, activitiesFactory, $mdDialog, $mdToast) {
 
       var
-        date,
+        date, setDefaultDate,
         self = this,
         companyId = $routeParams.id;
       
@@ -24,6 +24,14 @@ require('controllers/companies/index.js');
       $scope.dateSelected = false;
       $scope.loadingActivities = true;
 
+      setDefaultDate = function () {
+        var
+          now = new Date(),
+          month = new Date(now.getFullYear() + '-' + (now.getMonth() + 1));
+
+        $scope.month = month
+        $scope.loadActivities(month);
+      }
       
       joinForCompanyService.watch(companyId, function (company) {
         $scope.company = company;
@@ -38,6 +46,7 @@ require('controllers/companies/index.js');
           $scope.company.firstClosing = date.yyyymmdd();
         }
 
+        setDefaultDate();
 
         !! $scope.$$phase || $scope.$apply();
       });
