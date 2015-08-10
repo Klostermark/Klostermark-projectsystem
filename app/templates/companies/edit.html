@@ -58,7 +58,7 @@
         </md-input-container>
 
         <md-input-container>
-          <label>Rapporteringsmall</label>
+          <label>Rapporteringsmail</label>
           <input type="text" ng-model="company.submissionTemplate">
         </md-input-container>
 
@@ -96,6 +96,10 @@
           Arbetsgivare
         </md-checkbox>
 
+        <md-checkbox ng-model="company.wages">
+          Löner
+        </md-checkbox>
+
         <md-checkbox ng-model="company.EUSales">
           EU-försäljning
         </md-checkbox>
@@ -110,9 +114,6 @@
           <input type="text" ng-model="company.contactPhone">
         </md-input-container>
 
-        <md-checkbox ng-model="company.wages">
-          Löner
-        </md-checkbox>
 
         <md-input-container>
           <label>Faktureringsadress</label>

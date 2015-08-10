@@ -20,19 +20,19 @@
     <h2>Lösenord</h2>
         <form>
             <fieldset>
-                <legend>Change Password</legend>
+                <legend>Byt lösenord</legend>
                 <md-input-container>
-                    <label>Old Password:</label>
+                    <label>Nuvarande lösenord:</label>
                     <input type="password" ng-keypress="clear()" ng-model="oldpass"/>
                 </md-input-container>
 
                 <md-input-container>
-                    <label>New Password:</label>
+                    <label>Nytt lösenord:</label>
                     <input type="password" ng-keypress="clear()" ng-model="newpass"/>
                 </md-input-container>
 
                 <md-input-container>
-                    <label>Confirm New Password:</label>
+                    <label>Repetera nytt lösenord:</label>
                     <input type="password" ng-keypress="clear()" ng-model="confirm"/>
                 </md-input-container>
 
@@ -50,15 +50,15 @@
     <h2>E-postadresser</h2>
         <form>
             <fieldset>
-                <legend>Change Email</legend>
+                <legend>Byt E-postadress</legend>
 
                 <md-input-container>
-                    <label>New Email:</label>
+                    <label>Ny e-postadress:</label>
                     <input type="text" ng-keypress="clear()" ng-model="newEmail"/>
                 </md-input-container>
 
                 <md-input-container>
-                    <label>Lösenord:</label>
+                    <label>Ange lösenord:</label>
                     <input type="password" ng-keypress="clear()" ng-model="pass"/>
                 </md-input-container>
 
@@ -68,7 +68,5 @@
                 <p class="good" ng-show="emailmsg">{{emailmsg}}</p>
             </fieldset>
         </form>
-
-        <md-button ng-click="logout()" class="md-primary md-raised">Log Out</md-button>
     </md-card-content>
 </md-card>

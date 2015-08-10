@@ -81,14 +81,15 @@
                   Eu-försäljning: {{ company.EUSales ? 'Bolaget har haft EU-försäljning' : 'Bolaget har inte haft EU-försäljning'}} <br>
                   Bokföringsmetod: {{ company.accountingMethod }} <br>
                   Bank: {{ company.bank }} <br>
-                  {{ company.brokenFiscalYear ? 'Räkneskapsåret är brutet och har sitt första bokslut' : 'Obrutet räkneskapsår' }}
+                  Räkneskapsår: {{ company.brokenFiscalYear ? 'Räkneskapsåret är brutet och har sitt första bokslut' : 'Räkneskapsåret är inte brutet' }}
                   {{ company.closingMonth ? company.closingMonth : '' }} <br>
-                  Arbetsgivare: {{ company.employer ? 'Arbetsgivare' : 'Ingen arbetsgivare' }} <br>
-                  Löner: {{ company.wages ? 'Löner' : 'Inga löner' }}<br>
+                  Arbetsgivare: {{ company.employer ? 'Bolaget är registrerat som arbetsgivare' : 'Nej, inte registrerade som arbetsgivare' }} <br>
+                  Löner: {{ company.wages ? 'Klostermark gör löneutbetalningar' : 'Inga löner' }}<br>
                   {{ company.extendedFiscalYear ? 'Förlängt räknaskapsår till och med' : 'Räkneskapsåret är inte förlängt.' }}
                   {{ company.firstClosing ? company.firstClosing : '' }} <br>
-                  Momsperiod: {{ company.monthlyVAT }} <br>
+                  Momsperiod: {{ company.monthlyVAT }} <br><br>
                   <md-divider></md-divider>
+                  <br>
                   Kontaktperson: {{ company.contactPerson }} <br>
                   Telefonnummer: {{ company.contactPhone }} <br>
                   E-postadress: {{ company.submissionTemplate }} <br>

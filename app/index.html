@@ -17,10 +17,16 @@
 
   <md-sidenav md-component-id="left" class="md-sidenav-left" ng-if="authorized">
     <md-list-item ng-click="navigate('/companies')">
-      <md-icon>cached</md-icon>
+      <md-icon>account_circle</md-icon>
       <p>Kunder</p>
     </md-list-item>
     <md-divider></md-divider>
+    <md-list-item ng-click="navigate('/reports')">
+      <md-icon>view_list</md-icon>
+      <p>Rapporter</p>
+    </md-list-item>
+    <md-divider></md-divider>
+
     <md-list-item ng-click="navigate('/settings')">
       <md-icon>settings</md-icon>
       <p>Systeminställningar</p>
