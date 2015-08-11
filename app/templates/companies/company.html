@@ -1,7 +1,7 @@
-<div>
+<div class="company">
   <md-content>
     <md-tabs md-center-tabs="false" md-dynamic-height md-border-bottom class="md-default-theme md-primary md-hue-1">
-      <md-tab label="Moment">
+      <md-tab label="Månadsaktiviteter">
         <md-content>
           <div class="container margin-top">
 
@@ -26,7 +26,7 @@
                     <div ng-message="required">Var god välj en månad.</div>
                   </div>
                 </md-input-container>
-                
+
                 <div ng-repeat="category in company.categories" ng-if="dateSelected">
                   <span class="category-title">{{ category.name }}</span>
                   <md-card>
@@ -61,6 +61,17 @@
 
             </div>
 
+          </div>
+        </md-content>
+      </md-tab>
+      <md-tab label="Veckoaktiviteter">
+        <md-content>
+          <div class="container margin-top">
+            <md-card>
+              <md-card-content>
+                <p>Veckoaktiviteter</p>
+              </md-card-content>
+            </md-card>
           </div>
         </md-content>
       </md-tab>
@@ -102,6 +113,43 @@
 
         </md-content>
       </md-tab>
+      <md-tab label="Öppna ärenden">
+        <div class="container margin-top">
+          <md-card>
+            <md-subheader class="md-accent">Öppna ärenden</md-subheader>
+            <md-list>
+              <md-list-item ng-click="goToPerson(person.name, $event)">
+                <img src="/src/img/lovisa-sandell.jpg" class="md-avatar">
+                <p>Svara på ett mail</p>
+                <md-checkbox class="right"></md-checkbox>
+              </md-list-item>
+              <md-list-item ng-click="goToPerson(person.name, $event)">
+                <img src="/src/img/lovisa-sandell.jpg" class="md-avatar">
+                <p>Ta fram en prognons på de kommande 3 månaderna</p>
+                <span class="deadline">Deadline: 2015-09-23</span>
+                <md-checkbox class="right"></md-checkbox>
+              </md-list-item>
+
+            </md-list>
+          </md-card>
+          <md-card>
+            <md-subheader class="md-accent">Avslutade ärenden</md-subheader>
+            <md-list>
+              <md-list-item ng-click="goToPerson(person.name, $event)">
+                <img src="/src/img/lovisa-sandell.jpg" class="md-avatar">
+                <p>Maila kunden huvudboken</p>
+                <md-checkbox class="right"></md-checkbox>
+              </md-list-item>
+              <md-list-item ng-click="goToPerson(person.name, $event)">
+                <img src="/src/img/lovisa-sandell.jpg" class="md-avatar">
+                <p>Ta fram en prognons på de kommande 3 månaderna</p>
+                <md-checkbox class="right"></md-checkbox>
+              </md-list-item>
+            </md-list>
+          </md-card>
+        </div>
+      </md-tab>
+
 <!--       <md-tab label="Löner">
 
         <div class="container">
